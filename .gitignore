@@ -1,3 +1,8 @@
+# PlatformIO files and folders
 .pio
 .pioenvs
 .piolibdeps
+
+# Vim integration files
+.clang_complete
+.gcc-flags.json
