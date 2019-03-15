@@ -1,6 +1,9 @@
 all:
 	platformio -f -c vim run
 
+monitor:
+	platformio -f -c vim run --target monitor
+
 upload:
 	platformio -f -c vim run --target upload
 
