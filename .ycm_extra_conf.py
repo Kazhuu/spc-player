@@ -44,6 +44,7 @@ PlatformioArduinoSTD = '~/.platformio/packages/toolchain-atmelavr/avr/include'
 # paths, or paths relative to the user (using ~/path/to/file).
 libDirs = [
            "lib"
+           ,"include"
            ,PlatformioAutogen
            ,PlatformioArduinoCore
            ,PlatformioArduinoLibs
