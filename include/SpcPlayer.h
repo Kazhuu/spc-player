@@ -11,6 +11,7 @@ class SpcPlayer {
     void init();
     void reset();
     uint8_t read(uint8_t port);
+    void write(uint8_t port, uint8_t value);
 
     private:
     uint8_t _readPin;
@@ -19,8 +20,6 @@ class SpcPlayer {
     uint8_t _dataPins[8];
     uint8_t _portPins[2];
 
-    void _setReadMode();
-    void _setWriteMode();
     void _dataDirection(uint8_t mode);
 };
 
