@@ -20,12 +20,16 @@
 
 
 SpcPlayer spcPlyer(READ_PIN, WRITE_PIN, RESET_PIN);
+uint8_t data[] = {0x10, 0x10, 0x10, 0x10, 0x10, 0x10, 0x10, 0x10, 0x10, 0x10, 0x10, 0x10, 0x10, 0x10, 0x10, 0x10, 0x10, 0x10, 0x10};
 
 void setup() {
     Serial.begin(9600);
     spcPlyer.setPortPins(PORT_0_PIN, PORT_1_PIN);
     spcPlyer.setDataPins(DATA_0_PIN, DATA_1_PIN, DATA_2_PIN, DATA_3_PIN, DATA_4_PIN, DATA_5_PIN, DATA_6_PIN, DATA_7_PIN);
     spcPlyer.init();
+    spcPlyer.writeBlock(10, data, 260);
+    spcPlyer.writeBlock(10, data, 260);
+    Serial.print("write done");
 }
 
 void loop() {

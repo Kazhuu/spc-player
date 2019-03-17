@@ -38,11 +38,13 @@ void SpcPlayer::init() {
     digitalWrite(this->_readPin, HIGH);
     digitalWrite(this->_writePin, HIGH);
     digitalWrite(this->_resetPin, HIGH);
+    this->_firstTransfer = true;
 }
 
 void SpcPlayer::reset() {
     digitalWrite(this->_resetPin, LOW);
     digitalWrite(this->_resetPin, HIGH);
+    this->_firstTransfer = true;
 }
 
 uint8_t SpcPlayer::read(uint8_t port) {
@@ -53,11 +55,11 @@ uint8_t SpcPlayer::read(uint8_t port) {
     // Set port number.
     digitalWrite(this->_portPins[0], port & 0x01);
     digitalWrite(this->_portPins[1], port & 0x02);
-    // Set read line low and delay a bit for data to appear in data pins.
+    // Set read line low and delay a bit for data to appear in data lines.
     digitalWrite(this->_readPin, LOW);
     __asm__ __volatile__("nop");
     __asm__ __volatile__("nop");
-    // Read eight data pins.
+    // Read eight data lines.
     for (int i = 0; i < 8; i++) {
         data |= (digitalRead(this->_dataPins[i]) << i);
     }
@@ -73,7 +75,7 @@ void SpcPlayer::write(uint8_t port, uint8_t value) {
     // Set port.
     digitalWrite(this->_portPins[0], port & 0x01);
     digitalWrite(this->_portPins[1], port & 0x02);
-    // Put value on data pins.
+    // Put value on data lines.
     for (int i = 0; i < 8; i++) {
         digitalWrite(this->_dataPins[i], value & (1 << i));
     }
@@ -83,6 +85,26 @@ void SpcPlayer::write(uint8_t port, uint8_t value) {
     __asm__ __volatile__("nop");
     // Set write line high again.
     digitalWrite(this->_writePin, HIGH);
+}
+
+void SpcPlayer::writeBlock(uint16_t address, uint8_t* data, int length) {
+    this->write(1, 1);
+    this->write(2, address & 0xFF);
+    this->write(3, address >> 8);
+    if (this->_firstTransfer) {
+        this->write(0, 0xCC);
+        while (this->read(0) != 0xCC);
+        this->_firstTransfer = false;
+    } else {
+        uint8_t lastValue = this->read(0) + 2;
+        this->write(0, lastValue);
+        while (this->read(0) != lastValue);
+    }
+    for (int i = 0; i < length; i++) {
+        this->write(1, data[i]);
+        this->write(0, i & 0xFF);
+        while (this->read(0) != (i & 0xFF));
+    };
 }
 
 void SpcPlayer::_dataDirection(uint8_t mode) {
