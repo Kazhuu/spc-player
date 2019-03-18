@@ -97,14 +97,31 @@ void SpcPlayer::writeBlock(uint16_t address, uint8_t* data, int length) {
         this->_firstTransfer = false;
     } else {
         uint8_t lastValue = this->read(0) + 2;
+        // Next value cannot be zero, so add 1 or more.
+        if (lastValue == 0)
+            lastValue = 1;
         this->write(0, lastValue);
         while (this->read(0) != lastValue);
     }
     for (int i = 0; i < length; i++) {
         this->write(1, data[i]);
-        this->write(0, i & 0xFF);
+        this->write(0, (i & 0xFF));
         while (this->read(0) != (i & 0xFF));
     };
+}
+
+void SpcPlayer::start(uint16_t address) {
+    uint8_t lastValue = this->read(0) + 2;
+    if (this->_firstTransfer) {
+        lastValue = 0xCC;
+        this->_firstTransfer = false;
+    }
+    this->write(1, 0x00);
+    this->write(2, address & 0xFF);
+    this->write(3, address >> 8);
+    this->write(0, lastValue);
+    Serial.println(lastValue);
+    while (this->read(0) != lastValue);
 }
 
 void SpcPlayer::_dataDirection(uint8_t mode) {

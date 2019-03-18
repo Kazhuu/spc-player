@@ -13,6 +13,7 @@ class SpcPlayer {
     uint8_t read(uint8_t port);
     void write(uint8_t port, uint8_t value);
     void writeBlock(uint16_t address, uint8_t* data, int length);
+    void start(uint16_t address);
 
     private:
     uint8_t _readPin;
