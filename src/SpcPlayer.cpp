@@ -39,6 +39,9 @@ void SpcPlayer::init() {
     digitalWrite(this->_writePin, HIGH);
     digitalWrite(this->_resetPin, HIGH);
     this->_firstTransfer = true;
+    // Wait for SPC to be ready.
+    while (this->read(0) != 0xAA);
+    while (this->read(1) != 0xBB);
 }
 
 void SpcPlayer::reset() {
@@ -111,16 +114,18 @@ void SpcPlayer::writeBlock(uint16_t address, uint8_t* data, int length) {
 }
 
 void SpcPlayer::start(uint16_t address) {
+    // Port 0 value needs to be incremented by 2 or more to tell SPC to start
+    // execution. If first time then 0xCC.
     uint8_t lastValue = this->read(0) + 2;
     if (this->_firstTransfer) {
         lastValue = 0xCC;
         this->_firstTransfer = false;
     }
+    // Write execution address and wait for response.
     this->write(1, 0x00);
     this->write(2, address & 0xFF);
     this->write(3, address >> 8);
     this->write(0, lastValue);
-    Serial.println(lastValue);
     while (this->read(0) != lastValue);
 }
 
