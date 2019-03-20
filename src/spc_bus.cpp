@@ -23,18 +23,15 @@ void SpcBus::setDataPins(uint8_t d0, uint8_t d1, uint8_t d2, uint8_t d3, uint8_t
     this->_dataDirection(INPUT);
 }
 
+/**
+ * Read, write and reset lines are all active low. So first put read and write
+ * to high and last reset line to prevent accidental read or writes to the SPC.
+ */
 void SpcBus::setPortPins(uint8_t port0Pin, uint8_t port1Pin) {
     this->_portPins[0] = port0Pin;
     this->_portPins[1] = port1Pin;
     pinMode(port0Pin, OUTPUT);
     pinMode(port1Pin, OUTPUT);
-}
-
-/**
- * Read, write and reset lines are all active low. So first put read and write
- * to high and last reset line to prevent accidental read or writes to the SPC.
- */
-void SpcBus::init() {
     digitalWrite(this->_readPin, HIGH);
     digitalWrite(this->_writePin, HIGH);
     digitalWrite(this->_resetPin, HIGH);

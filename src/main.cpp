@@ -54,12 +54,17 @@ void setup() {
     Serial.begin(9600);
     spcBus.setPortPins(PORT_0_PIN, PORT_1_PIN);
     spcBus.setDataPins(DATA_0_PIN, DATA_1_PIN, DATA_2_PIN, DATA_3_PIN, DATA_4_PIN, DATA_5_PIN, DATA_6_PIN, DATA_7_PIN);
-    spcWriter.init();
-    spcWriter.writeBlock(0x0002, data, sizeof(data));
+    spcWriter.reset();
+    spcWriter.setAddress(0x0002);
+    for (int i = 0; i < sizeof(data); i++) {
+        Serial.println(spcWriter.write(data[i]));
+    }
+    spcWriter.setAddress(0x0004);
+    for (int i = 0; i < sizeof(data); i++) {
+        Serial.println(spcWriter.write(data[i]));
+    }
     Serial.println("write done");
     spcWriter.start(0x0002);
-    Serial.println("spc start");
-    spcWriter.reset();
 }
 
 void loop() {

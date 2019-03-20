@@ -8,14 +8,15 @@
 class SpcWriter {
     public:
     SpcWriter(SpcBus& spcBus);
-    void init();
     void reset();
-    void writeBlock(uint16_t address, uint8_t* data, int length);
+    void setAddress(uint16_t address);
+    uint16_t write(uint8_t data);
     void start(uint16_t address);
 
     private:
     SpcBus& _spcBus;
     bool _firstTransfer;
+    uint8_t _writeCounter;
 };
 
 #endif
