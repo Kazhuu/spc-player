@@ -1,5 +1,6 @@
 #include "Arduino.h"
-#include "SpcPlayer.h"
+#include "spc_bus.h"
+#include "spc_writer.h"
 
 #define PORT_0_PIN 8
 #define PORT_1_PIN 9
@@ -19,7 +20,8 @@
 #define RESET_PIN A0
 
 
-SpcPlayer spcPlyer(READ_PIN, WRITE_PIN, RESET_PIN);
+SpcBus spcBus(READ_PIN, WRITE_PIN, RESET_PIN);
+SpcWriter spcWriter(spcBus);
 
 uint8_t data[] = {
     0x3D,               // inc X
@@ -28,23 +30,38 @@ uint8_t data[] = {
     0x5F, 0xC0, 0xFF    // jmp !$FFC0
 };
 
-void setup() {
-    Serial.begin(9600);
-    spcPlyer.setPortPins(PORT_0_PIN, PORT_1_PIN);
-    spcPlyer.setDataPins(DATA_0_PIN, DATA_1_PIN, DATA_2_PIN, DATA_3_PIN, DATA_4_PIN, DATA_5_PIN, DATA_6_PIN, DATA_7_PIN);
-    spcPlyer.init();
-    spcPlyer.writeBlock(0x0002, data, sizeof(data));
-    Serial.println("write done");
-    spcPlyer.start(0x0002);
-    Serial.println("spc start");
-}
-
-void loop() {
+void readPorts() {
     for (int i = 0; i < 4; i++) {
         Serial.print("port");
         Serial.print(i);
         Serial.print(": ");
-        Serial.println(spcPlyer.read(i), HEX);
-        delay(500);
+        Serial.println(spcBus.read(i), HEX);
     }
+}
+
+void handleSerialCommand() {
+    if (Serial.available()) {
+        char result = Serial.read();
+        switch (result) {
+            case 'Q':
+                readPorts();
+                break;
+        }
+    }
+}
+
+void setup() {
+    Serial.begin(9600);
+    spcBus.setPortPins(PORT_0_PIN, PORT_1_PIN);
+    spcBus.setDataPins(DATA_0_PIN, DATA_1_PIN, DATA_2_PIN, DATA_3_PIN, DATA_4_PIN, DATA_5_PIN, DATA_6_PIN, DATA_7_PIN);
+    spcWriter.init();
+    spcWriter.writeBlock(0x0002, data, sizeof(data));
+    Serial.println("write done");
+    spcWriter.start(0x0002);
+    Serial.println("spc start");
+    spcWriter.reset();
+}
+
+void loop() {
+    handleSerialCommand();
 }
