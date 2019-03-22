@@ -3,7 +3,7 @@ class Spc:
     def __init__(self, spc_file):
         self._cpu_registers(spc_file)
         self._ram(spc_file)
-        self._dps_registers(spc_file)
+        self._dsp_registers(spc_file)
 
     def _cpu_registers(self, spc_file):
         spc_file.seek(0x25)

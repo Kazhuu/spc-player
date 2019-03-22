@@ -39,6 +39,10 @@ void readPorts() {
     }
 }
 
+uint8_t readByte(int *error) {
+
+}
+
 void handleSerialCommand() {
     if (Serial.available()) {
         char result = Serial.read();
