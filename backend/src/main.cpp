@@ -1,6 +1,7 @@
 #include "Arduino.h"
 #include "spc_bus.h"
 #include "spc_writer.h"
+#include "uart.h"
 
 #define PORT_0_PIN 8
 #define PORT_1_PIN 9
@@ -20,8 +21,10 @@
 #define RESET_PIN A0
 
 
+
 SpcBus spcBus(READ_PIN, WRITE_PIN, RESET_PIN);
 SpcWriter spcWriter(spcBus);
+
 
 uint8_t data[] = {
     0x3D,               // inc X
@@ -39,16 +42,26 @@ void readPorts() {
     }
 }
 
-uint8_t readByte(int *error) {
-
-}
-
 void handleSerialCommand() {
     if (Serial.available()) {
         char result = Serial.read();
         switch (result) {
             case 'Q':
                 readPorts();
+                break;
+
+            case 'B':
+                int* error;
+                uint16_t address = Uart::readShort(error);
+                Serial.write(*error);
+                if (*error) {
+                    break;
+                }
+                uint16_t length = Uart::readShort(error);
+                Serial.write(*error);
+                if (*error) {
+                    break;
+                }
                 break;
         }
     }
