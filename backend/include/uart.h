@@ -6,7 +6,7 @@
 #define UART_OK             0
 #define UART_TIMEOUT_ERROR  1
 
-#define READ_TIMEOUT 100
+#define READ_TIMEOUT 1000
 
 class Uart {
     public:
