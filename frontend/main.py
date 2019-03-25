@@ -4,6 +4,7 @@ from serial import Serial
 
 from spc import Spc
 from list_action import ListAction
+from exceptions import SpcExpection
 from uart import Uart
 
 parser = argparse.ArgumentParser(description='Program to upload a SNES SPC music file to the original sound module via Arduino over serial')
@@ -14,6 +15,7 @@ args = parser.parse_args()
 
 with open(args.spc_file, 'rb') as f:
     spc = Spc(f)
-    with Serial(args.serial_port, timeout=5) as serial:
+    with Serial(args.serial_port, timeout=1) as serial:
+        Uart.reset(serial)
         print('opened port {0}'.format(serial.name))
         Uart.writeRam(serial, spc)

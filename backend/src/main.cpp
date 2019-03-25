@@ -50,18 +50,27 @@ void handleSerialCommand() {
                 readPorts();
                 break;
 
+            case 'R':
+                spcWriter.reset();
+                Serial.write('R');
+                break;
+
             case 'B':
                 int error;
                 uint16_t address = Uart::readShort(&error);
-                Serial.write(address);
                 if (error) {
+                    Serial.write("ae");
                     break;
                 }
-                uint16_t length = Uart::readShort(error);
-                Serial.write(length);
+                Serial.write((uint8_t)(address >> 8));
+                Serial.write((uint8_t)(address & 0xff));
+                uint16_t length = Uart::readShort(&error);
                 if (error) {
                     break;
+                    Serial.write("le");
                 }
+                Serial.write((uint8_t)(length >> 8));
+                Serial.write((uint8_t)(length & 0xff));
                 break;
         }
     }
@@ -72,6 +81,7 @@ void setup() {
     spcBus.setPortPins(PORT_0_PIN, PORT_1_PIN);
     spcBus.setDataPins(DATA_0_PIN, DATA_1_PIN, DATA_2_PIN, DATA_3_PIN, DATA_4_PIN, DATA_5_PIN, DATA_6_PIN, DATA_7_PIN);
     spcWriter.reset();
+    Serial.write('R');
 }
 
 void loop() {

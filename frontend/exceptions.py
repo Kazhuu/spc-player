@@ -1,0 +1,2 @@
+class SpcExpection(Exception):
+    pass
