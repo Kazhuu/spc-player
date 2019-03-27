@@ -21,30 +21,22 @@
 #define RESET_PIN A0
 
 
-
 SpcBus spcBus(READ_PIN, WRITE_PIN, RESET_PIN);
 SpcWriter spcWriter(spcBus);
 
 
-uint8_t data[] = {
-    0x3D,               // inc X
-    0x3D,               // inc X
-    0xD8, 0xF6,         // mov [0F6h], X
-    0x5F, 0xC0, 0xFF    // jmp !$FFC0
-};
-
 void readPorts() {
     for (int i = 0; i < 4; i++) {
-        Serial.print("port");
-        Serial.print(i);
-        Serial.print(": ");
-        Serial.println(spcBus.read(i), HEX);
+        Serial.write(spcBus.read(i));
     }
 }
 
 void handleSerialCommand() {
     if (Serial.available()) {
         char result = Serial.read();
+        int error;
+        uint16_t address;
+
         switch (result) {
             case 'Q':
                 readPorts();
@@ -55,22 +47,35 @@ void handleSerialCommand() {
                 Serial.write('R');
                 break;
 
-            case 'B':
-                int error;
-                uint16_t address = Uart::readShort(&error);
-                if (error) {
-                    Serial.write("ae");
+            case 'S':
+                address = Uart::readShort(&error);
+                if (error)
                     break;
-                }
+                spcWriter.start(address);
+                Serial.write((uint8_t)(address >> 8));
+                Serial.write((uint8_t)(address & 0xff));
+                break;
+
+            case 'B':
+                address = Uart::readShort(&error);
+                if (error)
+                    break;
                 Serial.write((uint8_t)(address >> 8));
                 Serial.write((uint8_t)(address & 0xff));
                 uint16_t length = Uart::readShort(&error);
-                if (error) {
+                if (error)
                     break;
-                    Serial.write("le");
-                }
                 Serial.write((uint8_t)(length >> 8));
                 Serial.write((uint8_t)(length & 0xff));
+                spcWriter.setAddress(address);
+                uint8_t data;
+                for (unsigned int i = 0; i < length; i++) {
+                    data = Uart::readByte(&error);
+                    if (error)
+                        break;
+                    spcWriter.write(data);
+                    Serial.write(data);
+                }
                 break;
         }
     }
