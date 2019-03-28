@@ -5,6 +5,7 @@ from serial import Serial
 from spc import Spc
 from list_action import ListAction
 from uart import Uart
+from exceptions import SpcExpection
 
 data = [
     0x3D,               # inc X
@@ -23,11 +24,14 @@ args = parser.parse_args()
 
 with open(args.spc_file, 'rb') as f:
     spc = Spc(f)
-    with Serial(args.serial_port, timeout=3) as serial:
+    with Serial(args.serial_port, 115200, timeout=3) as serial:
         Uart.reset(serial)
         print('opened port {0}'.format(serial.name))
-        print(Uart.readPorts(serial))
-        Uart.writeBlock(serial, 0x0002, data)
-        print(Uart.readPorts(serial))
-        Uart.start(serial, 0x0002)
-        print(Uart.readPorts(serial))
+        print(Uart.read_ports(serial))
+        # Uart.write_dsp_registers(serial, spc.dsp_registers)
+        print(Uart.read_ports(serial))
+        Uart.write_block(serial, 0x00FF, spc.ram_trimmed())
+        # Uart.write_block(serial, 0x0002, data)
+        # print(Uart.read_ports(serial))
+        # Uart.start(serial, 0x0002)
+        # print(Uart.read_ports(serial))

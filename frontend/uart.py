@@ -4,7 +4,7 @@ from exceptions import SpcExpection
 class Uart:
 
     @classmethod
-    def writeBlock(cls, serial, address, data):
+    def write_block(cls, serial, address, data):
         serial.write(b'B')
         # address
         address = cls.int_to_short(address)
@@ -24,10 +24,25 @@ class Uart:
             serial.write(byte)
             result = serial.read()
             if result != byte:
-                raise SpcExpection('writing {0} byte of block timed out'.format(index))
+                raise SpcExpection(
+                    'writing {} byte of block to address 0x{:04x} timed out'.format(
+                        index + 1, index + cls.int_from_bytes(address))
+                )
 
     @classmethod
-    def readPorts(cls, serial):
+    def write_dsp_registers(cls, serial, dsp_registers):
+        if len(dsp_registers) != 128:
+            raise SpcExpection('dsp_registers length must be equal to 128, now {0}'.format(len(dsp_registers)))
+        serial.write(b'D')
+        for index, value in enumerate(dsp_registers):
+            data = cls.int_to_byte(value)
+            serial.write(data)
+            result = serial.read()
+            if result != data:
+                raise SpcExpection('writing {0} of DSP registers timed out'.format(index))
+
+    @classmethod
+    def read_ports(cls, serial):
         serial.write(b'Q')
         data = []
         for i in range(4):
@@ -41,14 +56,14 @@ class Uart:
         serial.write(address)
         result = serial.read(2)
         if result != address:
-            raise SpcExpection('starting spc execution timed out')
+            raise SpcExpection('starting SPC execution timed out')
 
     @classmethod
     def reset(cls, serial):
         serial.write(b'R')
         result = serial.read()
         if result != b'R':
-            raise SpcExpection('spc reset failed timed out')
+            raise SpcExpection('SPC reset failed timed out')
 
     @classmethod
     def int_to_byte(cls, value):

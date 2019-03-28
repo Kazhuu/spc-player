@@ -2,8 +2,14 @@ class Spc:
 
     def __init__(self, spc_file):
         self._cpu_registers(spc_file)
-        self._ram(spc_file)
-        self._dsp_registers(spc_file)
+        self.ram = self._ram(spc_file)
+        self.dsp_registers = self._dsp_registers(spc_file)
+
+    # Return RAM without first two bytes and last 64 bytes. First two bytes are
+    # used during data transfer to store destination address and last 64 bytes
+    # contain communication program (IPL ROM).
+    def ram_trimmed(self):
+        return self.ram[1:65473]
 
     def _cpu_registers(self, spc_file):
         spc_file.seek(0x25)
@@ -16,8 +22,8 @@ class Spc:
 
     def _ram(self, spc_file):
         spc_file.seek(0x100)
-        self.ram = spc_file.read(65536)
+        return spc_file.read(65536)
 
     def _dsp_registers(self, spc_file):
         spc_file.seek(0x10100)
-        self.dsp_registers = spc_file.read(128)
+        return spc_file.read(128)
