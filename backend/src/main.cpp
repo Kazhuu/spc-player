@@ -88,8 +88,9 @@ void handleSerialCommand() {
                     if (error)
                         break;
                     spcWriter.write(data);
-                    Serial.write(data);
                 }
+                Serial.write((uint8_t)(length >> 8));
+                Serial.write((uint8_t)(length & 0xff));
                 break;
         }
     }

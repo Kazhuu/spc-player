@@ -22,12 +22,12 @@ class Uart:
         for index, value in enumerate(data):
             byte = cls.int_to_byte(value)
             serial.write(byte)
-            result = serial.read()
-            if result != byte:
-                raise SpcExpection(
-                    'writing {} byte of block to address 0x{:04x} timed out'.format(
-                        index + 1, index + cls.int_from_bytes(address))
-                )
+            print('writing {} address 0x{:04x}'.format(index + 1, index + cls.int_from_bytes(address)))
+        result = serial.read(2)
+        if result != length:
+            raise SpcExpection(
+                'writing block to address 0x{:04x} timed out'.format(cls.int_from_bytes(address))
+            )
 
     @classmethod
     def write_dsp_registers(cls, serial, dsp_registers):
