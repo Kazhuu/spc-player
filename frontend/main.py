@@ -6,12 +6,6 @@ from spc import Spc
 from list_action import ListAction
 from uart import Uart
 
-data = [
-    0x3D,               # inc X
-    0x3D,               # inc X
-    0xD8, 0xF6,         # mov [0F6h], X
-    0x5F, 0xC0, 0xFF    # jmp !$FFC0
-]
 
 boot_code = [
     # first two bytes of ram
