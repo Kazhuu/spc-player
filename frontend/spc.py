@@ -5,12 +5,6 @@ class Spc:
         self.ram = self._ram(spc_file)
         self.dsp_registers = self._dsp_registers(spc_file)
 
-    # Return RAM without first two bytes and last 64 bytes. First two bytes are
-    # used during data transfer to store destination address and last 64 bytes
-    # contain communication program (IPL ROM).
-    def ram_trimmed(self):
-        return self.ram[1:65473]
-
     def _cpu_registers(self, spc_file):
         spc_file.seek(0x25)
         self.program_couter = spc_file.read(2)

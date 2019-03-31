@@ -22,7 +22,6 @@ class Uart:
         for index, value in enumerate(data):
             byte = cls.int_to_byte(value)
             serial.write(byte)
-            print('writing {} address 0x{:04x}'.format(index + 1, index + cls.int_from_bytes(address)))
         result = serial.read(2)
         if result != length:
             raise SpcExpection(
@@ -67,10 +66,14 @@ class Uart:
 
     @classmethod
     def int_to_byte(cls, value):
+        if type(value) == bytes:
+            return value
         return value.to_bytes(1, 'big')
 
     @classmethod
     def int_to_short(cls, value):
+        if type(value) == bytes:
+            return value
         return value.to_bytes(2, 'big')
 
     @classmethod
