@@ -52,8 +52,6 @@ with open(args.spc_file, 'rb') as f:
         Uart.write_block(serial, 0x0002, spc.ram[0x0002:0x00F0])
         print('dsp registers')
         Uart.write_dsp_registers(serial, spc.dsp_registers)
-        print('timers')
-        Uart.write_block(serial, 0x00FA, spc.ram[0x00FA:0x00FD])
 
         # Prepare boot code.
         boot_code[1] = spc.ram[0]
@@ -65,10 +63,13 @@ with open(args.spc_file, 'rb') as f:
         boot_code[17] = spc.y_register
         boot_code[20] = spc.program_couter[1]
         boot_code[21] = spc.program_couter[0]
-
-        print('boot code')
         boot_code_address = 0xFFC0 - len(boot_code)
+
+        Uart.write_block(serial, 0x00FA, spc.ram[0x00FA:0x00FD])
+        print('timers')
         Uart.write_block(serial, boot_code_address, boot_code)
+        print('boot code')
+        # Uart.write_block(serial, 0x00F1, [0x07])
         Uart.start(serial, boot_code_address)
         print('started execution from: 0x{:02x}{:02x}'.format(spc.program_couter[0], spc.program_couter[1]))
         print(Uart.read_ports(serial))

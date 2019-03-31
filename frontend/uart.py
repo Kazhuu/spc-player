@@ -62,7 +62,7 @@ class Uart:
         serial.write(b'R')
         result = serial.read()
         if result != b'R':
-            raise SpcExpection('SPC reset failed timed out')
+            raise SpcExpection('SPC reset timed out')
 
     @classmethod
     def int_to_byte(cls, value):
