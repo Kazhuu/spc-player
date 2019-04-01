@@ -38,6 +38,9 @@ void handleSerialCommand() {
         char result = Serial.read();
         int error;
         uint16_t ram_address;
+        uint16_t length;
+        uint8_t dsp_address;
+        uint8_t dsp_length;
         uint8_t data;
 
         switch (result) {
@@ -59,25 +62,37 @@ void handleSerialCommand() {
                 Serial.write((uint8_t)(ram_address & 0xff));
                 break;
 
-            case 'D': // Write 128 DSP registers with dsp address and data.
-                for (uint8_t i = 0; i < 128; i++) {
+            // Write DSP registers starting from given address within DSP and
+            // amount of given length.
+            case 'D':
+                dsp_address = Uart::readByte(&error);
+                if (error)
+                    break;
+                Serial.write(dsp_address);
+                dsp_length = Uart::readByte(&error);
+                if (error)
+                    break;
+                Serial.write(dsp_length);
+                for (uint8_t i = dsp_address; i < dsp_address + dsp_length; i++) {
                     data = Uart::readByte(&error);
                     if (error)
                         break;
                     spcWriter.setAddress(0x00F2);
                     spcWriter.write(i); // Write DSP register address
-                    spcWriter.write(data); // Write register value
+                    spcWriter.write(data); // Write DSP register value
                     Serial.write(data);
                 }
                 break;
 
-            case 'B': // Write block of bytes with ram address and length.
+            // Write block of bytes to ram from given address and amount of
+            // given length.
+            case 'B':
                 ram_address = Uart::readShort(&error);
                 if (error)
                     break;
                 Serial.write((uint8_t)(ram_address >> 8));
                 Serial.write((uint8_t)(ram_address & 0xff));
-                uint16_t length = Uart::readShort(&error);
+                length = Uart::readShort(&error);
                 if (error)
                     break;
                 Serial.write((uint8_t)(length >> 8));

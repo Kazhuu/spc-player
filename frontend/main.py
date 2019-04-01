@@ -45,7 +45,7 @@ with open(args.spc_file, 'rb') as f:
         print('page 0')
         Uart.write_block(serial, 0x0002, spc.ram[0x0002:0x00F0])
         print('dsp registers')
-        Uart.write_dsp_registers(serial, spc.dsp_registers)
+        Uart.write_dsp_registers(serial, 0, spc.dsp_registers)
 
         # Prepare boot code.
         boot_code[1] = spc.ram[0]

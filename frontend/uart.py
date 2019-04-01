@@ -25,20 +25,34 @@ class Uart:
         result = serial.read(2)
         if result != length:
             raise SpcExpection(
-                'writing block to address 0x{:04x} timed out'.format(cls.int_from_bytes(address))
+                'writing byte to address 0x{:04x} timed out'.format(
+                    cls.int_from_bytes(address) + index)
             )
 
     @classmethod
-    def write_dsp_registers(cls, serial, dsp_registers):
-        if len(dsp_registers) != 128:
-            raise SpcExpection('dsp_registers length must be equal to 128, now {0}'.format(len(dsp_registers)))
+    def write_dsp_registers(cls, serial, dsp_address, dsp_registers):
         serial.write(b'D')
+        # address
+        dsp_address = cls.int_to_byte(dsp_address)
+        serial.write(dsp_address)
+        result = serial.read()
+        if result != dsp_address:
+            raise SpcExpection('writing dsp register start address timed out')
+        # length
+        length = cls.int_to_byte(len(dsp_registers))
+        serial.write(length)
+        result = serial.read()
+        if result != length:
+            raise SpcExpection('writing dsp registers length timed out')
         for index, value in enumerate(dsp_registers):
             data = cls.int_to_byte(value)
             serial.write(data)
             result = serial.read()
             if result != data:
-                raise SpcExpection('writing {0} of DSP registers timed out'.format(index))
+                raise SpcExpection(
+                    'writing DSP registers to address 0x{:02x} timed out'.format(
+                        cls.int_from_bytes(dsp_address) + index)
+                )
 
     @classmethod
     def read_ports(cls, serial):

@@ -49,7 +49,7 @@ class UartTestCase(SerialTestCase):
         data = [
             0x3D,             # inc X
             0x3D,             # inc X
-            0xD8, 0xF6,       # mov [0F6h], X
+            0xD8, 0xF6,       # mov ($F6), X
             0x5F, 0xC0, 0xFF  # jmp !$FFC0
         ]
         address = 0x0002
@@ -57,3 +57,27 @@ class UartTestCase(SerialTestCase):
         Uart.start(self.serial, address)
         result = Uart.read_ports(self.serial)
         self.assertEqual(result, [b'\xaa', b'\xbb', b'\x02', b'\x00'])
+
+    def test_write_dsp_registers(self):
+        """
+        Test writing one DSP register and small asm code which will read
+        written DSP register address and output it to port 3. Value is read
+        back to Python and asserted it's correct.
+        Asm code first place 0x01 to DSP register ram address 0xF2. This will
+        point to register 0x01 within DSP registers. Then read DSP register
+        value from ram address 0xF3 and output it to port 3 (ram address 0xF7).
+        Lastly jump to IPL rom boot code  at 0xFFC0.
+        """
+        dsp_address = 0x01  # Right channel volume
+        dsp_registers = [0x10]
+        code_address = 0x0002
+        asm = [
+            0x8F, 0x01, 0xF2,  # mov ($F2), #$01
+            0xFA, 0xF3, 0xF7,  # mov ($F7), ($F3)
+            0x5F, 0xC0, 0xFF   # jmp !$FFC0
+        ]
+        Uart.write_dsp_registers(self.serial, dsp_address, dsp_registers)
+        Uart.write_block(self.serial, code_address, asm)
+        Uart.start(self.serial, code_address)
+        result = Uart.read_ports(self.serial)
+        self.assertEqual(result, [b'\xaa', b'\xbb', b'\x00', b'\x10'])
