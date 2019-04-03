@@ -1,3 +1,5 @@
+import time
+
 from test.serial_test_case import SerialTestCase
 from uart import Uart
 from exceptions import SpcExpection
@@ -46,14 +48,14 @@ class UartTestCase(SerialTestCase):
         verify. Port 0 should contain 0xAA and port 1 should have 0xBB from IPL
         boot code and port 3 should have value 2 from X register.
         """
-        data = [
+        asm = [
             0x3D,             # inc X
             0x3D,             # inc X
             0xD8, 0xF6,       # mov ($F6), X
             0x5F, 0xC0, 0xFF  # jmp !$FFC0
         ]
         address = 0x0002
-        Uart.write_block(self.serial, address, data)
+        Uart.write_block(self.serial, address, asm)
         Uart.start(self.serial, address)
         result = Uart.read_ports(self.serial)
         self.assertEqual(result, [b'\xaa', b'\xbb', b'\x02', b'\x00'])
@@ -81,3 +83,34 @@ class UartTestCase(SerialTestCase):
         Uart.start(self.serial, code_address)
         result = Uart.read_ports(self.serial)
         self.assertEqual(result, [b'\xaa', b'\xbb', b'\x00', b'\x10'])
+
+    def test_timer(self):
+        """
+        Test using SPC 8 KHz timer 0. Write small assembly program which will
+        setup timer to increment in 15 ms by writing value 0x78 to it
+        (15/(1000/8000) = 15*8 = 120). After this start timer and loop until
+        counter (0xFD) has been incremented. After this write counter value to
+        port 3 from where it's read back to Python.
+
+        Test will read ports before timer has incremented and after it has
+        incremented.
+        """
+        asm = [
+            0x8F, 0x78, 0xFA,  # mov ($FA), #$78   ;write timer 0
+            0x8F, 0x01, 0xF1,  # mov ($F1), #$01   ;start timer 0
+                               # wait_for_tick:
+            0xE4, 0xFD,        # mov A, ($FD)      ;read counter 0
+            0xF0, 0xFC,        # beq wait_for_tick ;loop if 0
+            0xC4, 0xF7,        # mov ($F7), A      ;write A to port 3
+            0x5F, 0xC0, 0xFF   # jmp !$FFC0        ;jump to IPL boot code
+        ]
+        code_address = 0x0002
+        Uart.write_block(self.serial, code_address, asm)
+        Uart.start(self.serial, code_address)
+        # Timer has not yet incremented, so port 3 value will be 0x00.
+        result = Uart.read_ports(self.serial)
+        self.assertEqual(result, [b'\x11', b'\xbb', b'\x00', b'\x00'])
+        time.sleep(0.1)
+        # Timer has been incremented so port 3 value should be 0x01.
+        result = Uart.read_ports(self.serial)
+        self.assertEqual(result, [b'\x11', b'\xbb', b'\x00', b'\x01'])
