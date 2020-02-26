@@ -1,7 +1,7 @@
+#include "SpcBus.hpp"
+#include "SpcWriter.hpp"
+#include "Uart.hpp"
 #include "Arduino.h"
-#include "spc_bus.h"
-#include "spc_writer.h"
-#include "uart.h"
 
 #define PORT_0_PIN 8
 #define PORT_1_PIN 9
@@ -37,10 +37,10 @@ void handleSerialCommand() {
     if (Serial.available()) {
         char result = Serial.read();
         int error;
-        uint16_t ram_address;
+        uint16_t ramAddress;
         uint16_t length;
-        uint8_t dsp_address;
-        uint8_t dsp_length;
+        uint8_t dspAddress;
+        uint8_t dspLength;
         uint8_t data;
 
         switch (result) {
@@ -54,26 +54,26 @@ void handleSerialCommand() {
                 break;
 
             case 'S': // Start SPC execution from given ram address.
-                ram_address = Uart::readShort(&error);
+                ramAddress = Uart::readShort(&error);
                 if (error)
                     break;
-                spcWriter.start(ram_address);
-                Serial.write((uint8_t)(ram_address >> 8));
-                Serial.write((uint8_t)(ram_address & 0xff));
+                spcWriter.start(ramAddress);
+                Serial.write((uint8_t)(ramAddress >> 8));
+                Serial.write((uint8_t)(ramAddress & 0xff));
                 break;
 
             // Write DSP registers starting from given address within DSP and
             // amount of given length.
             case 'D':
-                dsp_address = Uart::readByte(&error);
+                dspAddress = Uart::readByte(&error);
                 if (error)
                     break;
-                Serial.write(dsp_address);
-                dsp_length = Uart::readByte(&error);
+                Serial.write(dspAddress);
+                dspLength = Uart::readByte(&error);
                 if (error)
                     break;
-                Serial.write(dsp_length);
-                for (uint8_t i = dsp_address; i < dsp_address + dsp_length; i++) {
+                Serial.write(dspLength);
+                for (uint8_t i = dspAddress; i < dspAddress + dspLength; i++) {
                     data = Uart::readByte(&error);
                     if (error)
                         break;
@@ -87,17 +87,17 @@ void handleSerialCommand() {
             // Write block of bytes to ram from given address and amount of
             // given length.
             case 'B':
-                ram_address = Uart::readShort(&error);
+                ramAddress = Uart::readShort(&error);
                 if (error)
                     break;
-                Serial.write((uint8_t)(ram_address >> 8));
-                Serial.write((uint8_t)(ram_address & 0xff));
+                Serial.write((uint8_t)(ramAddress >> 8));
+                Serial.write((uint8_t)(ramAddress & 0xff));
                 length = Uart::readShort(&error);
                 if (error)
                     break;
                 Serial.write((uint8_t)(length >> 8));
                 Serial.write((uint8_t)(length & 0xff));
-                spcWriter.setAddress(ram_address);
+                spcWriter.setAddress(ramAddress);
                 for (unsigned int i = 0; i < length; i++) {
                     data = Uart::readByte(&error);
                     if (error)

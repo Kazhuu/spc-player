@@ -103,7 +103,7 @@ def MakeRelativePathsInFlagsAbsolute( flags, working_directory ):
 
         for path, dirs, files in os.walk(libDir):
             # Add to flags if dir contains a header file and is not
-            # one of the metadata dirs (examples and extras). 
+            # one of the metadata dirs (examples and extras).
             if any(IsHeaderFile(x) for x in files) and\
               path.find("examples") is -1 and path.find("extras") is -1:
                 logger.debug("Directory contains header files - %s"%path)

@@ -9,7 +9,7 @@
 #define READ_TIMEOUT 500
 
 class Uart {
-    public:
+public:
     static uint8_t readByte(int* error);
     static uint16_t readShort(int* error);
 };
