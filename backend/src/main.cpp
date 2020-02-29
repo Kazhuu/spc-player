@@ -1,5 +1,5 @@
-#include "SpcBus.hpp"
-#include "SpcWriter.hpp"
+#include "SpcHal.hpp"
+#include "IplRomClient.hpp"
 #include "Uart.hpp"
 #include "Arduino.h"
 
@@ -23,13 +23,21 @@
 #define BAUD_RATE 115200
 
 
-SpcBus spcBus(READ_PIN, WRITE_PIN, RESET_PIN);
-SpcWriter spcWriter(spcBus);
+SpcHal spcHal(READ_PIN, WRITE_PIN, RESET_PIN);
+IplRomClient iplRomClient(spcHal);
 
 
 void readPorts() {
-    for (int i = 0; i < 4; i++) {
-        Serial.write(spcBus.read(i));
+    for (uint8_t i = 0; i < 4; i++) {
+        Serial.write(spcHal.read(i));
+    }
+}
+
+void serialWriteResult(bool result) {
+    if (result) {
+        Serial.write('1');
+    } else {
+        Serial.write('0');
     }
 }
 
@@ -42,6 +50,7 @@ void handleSerialCommand() {
         uint8_t dspAddress;
         uint8_t dspLength;
         uint8_t data;
+        uint8_t port;
 
         switch (result) {
             case 'Q': // Read value of all four ports.
@@ -49,15 +58,14 @@ void handleSerialCommand() {
                 break;
 
             case 'R': // Reset SPC.
-                spcWriter.reset();
-                Serial.write('R');
+                serialWriteResult(iplRomClient.reset());
                 break;
 
             case 'S': // Start SPC execution from given ram address.
                 ramAddress = Uart::readShort(&error);
                 if (error)
                     break;
-                spcWriter.start(ramAddress);
+                iplRomClient.start(ramAddress);
                 Serial.write((uint8_t)(ramAddress >> 8));
                 Serial.write((uint8_t)(ramAddress & 0xff));
                 break;
@@ -77,9 +85,9 @@ void handleSerialCommand() {
                     data = Uart::readByte(&error);
                     if (error)
                         break;
-                    spcWriter.setAddress(0x00F2);
-                    spcWriter.write(i); // Write DSP register address
-                    spcWriter.write(data); // Write DSP register value
+                    iplRomClient.setAddress(0x00F2);
+                    iplRomClient.write(i); // Write DSP register address
+                    iplRomClient.write(data); // Write DSP register value
                     Serial.write(data);
                 }
                 break;
@@ -97,15 +105,32 @@ void handleSerialCommand() {
                     break;
                 Serial.write((uint8_t)(length >> 8));
                 Serial.write((uint8_t)(length & 0xff));
-                spcWriter.setAddress(ramAddress);
+                iplRomClient.setAddress(ramAddress);
                 for (unsigned int i = 0; i < length; i++) {
                     data = Uart::readByte(&error);
                     if (error)
                         break;
-                    spcWriter.write(data);
+                    iplRomClient.write(data);
                 }
                 Serial.write((uint8_t)(length >> 8));
                 Serial.write((uint8_t)(length & 0xff));
+                break;
+
+             // Write single port. Two following bytes are read for address and
+             // value.
+            case 'W':
+                port = Uart::readByte(&error);
+                if (error) {
+                    Serial.write(0x00);
+                    break;
+                }
+                data = Uart::readByte(&error);
+                if (error) {
+                    Serial.write(0x00);
+                    break;
+                }
+                spcHal.write(port, data);
+                Serial.write(0x01);
                 break;
         }
     }
@@ -113,10 +138,9 @@ void handleSerialCommand() {
 
 void setup() {
     Serial.begin(BAUD_RATE);
-    spcBus.setPortPins(PORT_0_PIN, PORT_1_PIN);
-    spcBus.setDataPins(DATA_0_PIN, DATA_1_PIN, DATA_2_PIN, DATA_3_PIN, DATA_4_PIN, DATA_5_PIN, DATA_6_PIN, DATA_7_PIN);
-    spcWriter.reset();
-    Serial.write('R');
+    spcHal.setPortPins(PORT_0_PIN, PORT_1_PIN);
+    spcHal.setDataPins(DATA_0_PIN, DATA_1_PIN, DATA_2_PIN, DATA_3_PIN, DATA_4_PIN, DATA_5_PIN, DATA_6_PIN, DATA_7_PIN);
+    iplRomClient.reset();
 }
 
 void loop() {

@@ -1,5 +1,6 @@
 import unittest
 import os
+import time
 
 from serial import Serial
 
@@ -15,9 +16,8 @@ class SerialTestCase(unittest.TestCase):
         if cls.port is None:
             raise RuntimeError('set SPC_PORT environment variable to specify port used for testing')
         cls.serial = Serial(cls.port, 115200, timeout=3)
-        result = cls.serial.read()
-        if result != b'R':
-            raise SpcExpection('SPC does not respond with R to signal ready')
+        # Wait for SPC being ready because Arduino is reseted when serial is opened.
+        time.sleep(2)
 
     @classmethod
     def tearDownClass(cls):

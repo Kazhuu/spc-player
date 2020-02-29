@@ -1,11 +1,11 @@
-#ifndef SPC_PLAYER_SPC_BUS_H
-#define SPC_PLAYER_SPC_BUS_H
+#ifndef SPC_PLAYER_SPC_HAL_HPP
+#define SPC_PLAYER_SPC_HAL_HPP
 
 #include <stdint.h>
 
-class SpcBus {
+class SpcHal {
 public:
-    SpcBus(uint8_t readPin, uint8_t writePin, uint8_t resetPin);
+    SpcHal(uint8_t readPin, uint8_t writePin, uint8_t resetPin);
     void setDataPins(uint8_t d0, uint8_t d1, uint8_t d2, uint8_t d3, uint8_t d4, uint8_t d5, uint8_t d6, uint8_t d7);
     void setPortPins(uint8_t port0Pin, uint8_t port1Pin);
     void reset();

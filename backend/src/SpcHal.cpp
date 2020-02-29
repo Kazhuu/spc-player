@@ -1,7 +1,7 @@
-#include "SpcBus.hpp"
+#include "SpcHal.hpp"
 #include "Arduino.h"
 
-SpcBus::SpcBus(uint8_t readPin, uint8_t writePin, uint8_t resetPin) {
+SpcHal::SpcHal(uint8_t readPin, uint8_t writePin, uint8_t resetPin) {
     mReadPin = readPin;
     mWritePin = writePin;
     mResetPin = resetPin;
@@ -10,7 +10,7 @@ SpcBus::SpcBus(uint8_t readPin, uint8_t writePin, uint8_t resetPin) {
     pinMode(resetPin, OUTPUT);
 }
 
-void SpcBus::setDataPins(uint8_t d0, uint8_t d1, uint8_t d2, uint8_t d3, uint8_t d4, uint8_t d5, uint8_t d6, uint8_t d7) {
+void SpcHal::setDataPins(uint8_t d0, uint8_t d1, uint8_t d2, uint8_t d3, uint8_t d4, uint8_t d5, uint8_t d6, uint8_t d7) {
     mDataPins[0] = d0;
     mDataPins[1] = d1;
     mDataPins[2] = d2;
@@ -26,7 +26,7 @@ void SpcBus::setDataPins(uint8_t d0, uint8_t d1, uint8_t d2, uint8_t d3, uint8_t
  * Read, write and reset lines are all active low. So first put read and write
  * to high and last reset line to prevent accidental read or writes to the SPC.
  */
-void SpcBus::setPortPins(uint8_t port0Pin, uint8_t port1Pin) {
+void SpcHal::setPortPins(uint8_t port0Pin, uint8_t port1Pin) {
     mPortPins[0] = port0Pin;
     mPortPins[1] = port1Pin;
     pinMode(port0Pin, OUTPUT);
@@ -36,12 +36,12 @@ void SpcBus::setPortPins(uint8_t port0Pin, uint8_t port1Pin) {
     digitalWrite(mResetPin, HIGH);
 }
 
-void SpcBus::reset() {
+void SpcHal::reset() {
     digitalWrite(mResetPin, LOW);
     digitalWrite(mResetPin, HIGH);
 }
 
-uint8_t SpcBus::read(uint8_t port) {
+uint8_t SpcHal::read(uint8_t port) {
     uint8_t data = 0;
 
     // Set data lines as inputs.
@@ -63,7 +63,7 @@ uint8_t SpcBus::read(uint8_t port) {
     return data;
 }
 
-void SpcBus::write(uint8_t port, uint8_t value) {
+void SpcHal::write(uint8_t port, uint8_t value) {
     // Set data lines as outputs.
     dataDirection(OUTPUT);
     // Set port.
@@ -81,7 +81,7 @@ void SpcBus::write(uint8_t port, uint8_t value) {
     digitalWrite(mWritePin, HIGH);
 }
 
-void SpcBus::dataDirection(uint8_t mode) {
+void SpcHal::dataDirection(uint8_t mode) {
     pinMode(mDataPins[0], mode);
     pinMode(mDataPins[1], mode);
     pinMode(mDataPins[2], mode);

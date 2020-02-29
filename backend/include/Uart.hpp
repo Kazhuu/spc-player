@@ -1,5 +1,5 @@
-#ifndef SPC_PLAYER_UART_H
-#define SPC_PLAYER_UART_H
+#ifndef SPC_PLAYER_UART_HPP
+#define SPC_PLAYER_UART_HPP
 
 #include <stdint.h>
 
