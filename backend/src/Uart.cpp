@@ -3,43 +3,43 @@
 
 static unsigned long previousMillis;
 
-uint8_t Uart::readByte(int* error) {
+uint8_t Uart::readByte(bool* success) {
     uint8_t result = 0;
     unsigned long currentMillis = millis();
     previousMillis = currentMillis;
 
-    do {
+    while (true) {
         currentMillis = millis();
         if (Serial.available()) {
             result = Serial.read();
-            *error = UART_OK;
+            *success = true;
             break;
         }
         if (currentMillis - previousMillis > READ_TIMEOUT) {
-            *error = UART_TIMEOUT_ERROR;
+            *success = false;
             break;
         }
-    } while (true);
+    }
     return result;
 };
 
-uint16_t Uart::readShort(int* error) {
+uint16_t Uart::readShort(bool* success) {
     uint16_t result = 0;
     unsigned long currentMillis = millis();
     previousMillis = currentMillis;
 
-    do {
+    while (true) {
         currentMillis = millis();
         if (Serial.available() >= 2) {
             result = Serial.read() << 8;
             result |= Serial.read();
-            *error = UART_OK;
+            *success = true;
             break;
         }
         if (currentMillis - previousMillis > READ_TIMEOUT) {
-            *error = UART_TIMEOUT_ERROR;
+            *success = false;
             break;
         }
-    } while (true);
+    }
     return result;
 };

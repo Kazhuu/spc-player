@@ -1,7 +1,11 @@
+#include "SpcPlayer.hpp"
 #include "SpcHal.hpp"
 #include "IplRomClient.hpp"
 #include "Uart.hpp"
 #include "Arduino.h"
+
+#define SERIAL_WRITE_SUCCESS '1'
+#define SERIAL_WRITE_ERROR '0'
 
 #define PORT_0_PIN 8
 #define PORT_1_PIN 9
@@ -25,6 +29,7 @@
 
 SpcHal spcHal(READ_PIN, WRITE_PIN, RESET_PIN);
 IplRomClient iplRomClient(spcHal);
+SpcPlayer spcPlayer(iplRomClient);
 
 
 void readPorts() {
@@ -35,22 +40,21 @@ void readPorts() {
 
 void serialWriteResult(bool result) {
     if (result) {
-        Serial.write('1');
+        Serial.write(SERIAL_WRITE_SUCCESS);
     } else {
-        Serial.write('0');
+        Serial.write(SERIAL_WRITE_ERROR);
     }
 }
 
 void handleSerialCommand() {
     if (Serial.available()) {
         char result = Serial.read();
-        int error;
-        uint16_t ramAddress;
-        uint16_t length;
-        uint8_t dspAddress;
-        uint8_t dspLength;
+        bool uartReadResult;
         uint8_t data;
         uint8_t port;
+        uint16_t programCounter;
+        uint8_t aRegister, xRegister, yRegister, stackPointer, cpuFlags;
+        uint8_t page[256];
 
         switch (result) {
             case 'Q': // Read value of all four ports.
@@ -61,76 +65,132 @@ void handleSerialCommand() {
                 serialWriteResult(iplRomClient.reset());
                 break;
 
-            case 'S': // Start SPC execution from given ram address.
-                ramAddress = Uart::readShort(&error);
-                if (error)
+            case 'C': // Get CPU registers PC, A, X, Y, SP and PSW.
+                programCounter = Uart::readShort(&uartReadResult);
+                if (!uartReadResult) {
+                    Serial.write(SERIAL_WRITE_ERROR);
                     break;
-                iplRomClient.start(ramAddress);
-                Serial.write((uint8_t)(ramAddress >> 8));
-                Serial.write((uint8_t)(ramAddress & 0xff));
+                }
+                aRegister = Uart::readByte(&uartReadResult);
+                if (!uartReadResult) {
+                    Serial.write(SERIAL_WRITE_ERROR);
+                    break;
+                }
+                xRegister = Uart::readByte(&uartReadResult);
+                if (!uartReadResult) {
+                    Serial.write(SERIAL_WRITE_ERROR);
+                    break;
+                }
+                yRegister = Uart::readByte(&uartReadResult);
+                if (!uartReadResult) {
+                    Serial.write(SERIAL_WRITE_ERROR);
+                    break;
+                }
+                stackPointer = Uart::readByte(&uartReadResult);
+                if (!uartReadResult) {
+                    Serial.write(SERIAL_WRITE_ERROR);
+                    break;
+                }
+                cpuFlags = Uart::readByte(&uartReadResult);
+                if (!uartReadResult) {
+                    Serial.write(SERIAL_WRITE_ERROR);
+                    break;
+                }
+                Serial.write(SERIAL_WRITE_SUCCESS);
                 break;
 
-            // Write DSP registers starting from given address within DSP and
-            // amount of given length.
+            //case 'S': // Start SPC execution from given ram address.
+                //ramAddress = Uart::readShort(&uartReadResult);
+                //if (uartReadResult)
+                    //break;
+                //serialWriteResult(iplRomClient.start(ramAddress));
+                //break;
+
+            // Write all 128 DSP register. One byte per register.
             case 'D':
-                dspAddress = Uart::readByte(&error);
-                if (error)
-                    break;
-                Serial.write(dspAddress);
-                dspLength = Uart::readByte(&error);
-                if (error)
-                    break;
-                Serial.write(dspLength);
-                for (uint8_t i = dspAddress; i < dspAddress + dspLength; i++) {
-                    data = Uart::readByte(&error);
-                    if (error)
+                for (uint32_t i = 0; i < 128; ++i) {
+                    page[i] = Uart::readByte(&uartReadResult);
+                    if (!uartReadResult) {
+                        Serial.write(SERIAL_WRITE_ERROR);
                         break;
-                    iplRomClient.setAddress(0x00F2);
-                    iplRomClient.write(i); // Write DSP register address
-                    iplRomClient.write(data); // Write DSP register value
-                    Serial.write(data);
+                    }
+                }
+                if (uartReadResult) {
+                    bool dspResult = spcPlayer.setDspRegisters(page);
+                    if (dspResult) {
+                        Serial.write(SERIAL_WRITE_SUCCESS);
+                    } else {
+                        Serial.write(SERIAL_WRITE_ERROR);
+                    }
                 }
                 break;
 
+            // Write page 0 of SPC ram, 256 bytes.
+            case '0':
+                for (uint32_t i = 0; i < 256; ++i) {
+                    page[i] = Uart::readByte(&uartReadResult);
+                    if (!uartReadResult) {
+                        Serial.write(SERIAL_WRITE_ERROR);
+                        break;
+                    }
+                }
+                if (uartReadResult) {
+                    Serial.write(SERIAL_WRITE_SUCCESS);
+                }
+                break;
+
+            // Write page 1 of SPC ram, 256 bytes.
+            case '1':
+                for (uint32_t i = 0; i < 256; ++i) {
+                    page[i] = Uart::readByte(&uartReadResult);
+                    if (!uartReadResult) {
+                        Serial.write(SERIAL_WRITE_ERROR);
+                        break;
+                    }
+                }
+                if (uartReadResult) {
+                    Serial.write(SERIAL_WRITE_SUCCESS);
+                }
+                break;
             // Write block of bytes to ram from given address and amount of
             // given length.
-            case 'B':
-                ramAddress = Uart::readShort(&error);
-                if (error)
-                    break;
-                Serial.write((uint8_t)(ramAddress >> 8));
-                Serial.write((uint8_t)(ramAddress & 0xff));
-                length = Uart::readShort(&error);
-                if (error)
-                    break;
-                Serial.write((uint8_t)(length >> 8));
-                Serial.write((uint8_t)(length & 0xff));
-                iplRomClient.setAddress(ramAddress);
-                for (unsigned int i = 0; i < length; i++) {
-                    data = Uart::readByte(&error);
-                    if (error)
-                        break;
-                    iplRomClient.write(data);
-                }
-                Serial.write((uint8_t)(length >> 8));
-                Serial.write((uint8_t)(length & 0xff));
-                break;
+            //case 'B':
+                //ramAddress = Uart::readShort(&uartReadResult);
+                //if (!uartReadResult)
+                    //break;
+                //Serial.write((uint8_t)(ramAddress >> 8));
+                //Serial.write((uint8_t)(ramAddress & 0xff));
+                //length = Uart::readShort(&uartReadResult);
+                //if (!uartReadResult)
+                    //break;
+                //Serial.write((uint8_t)(length >> 8));
+                //Serial.write((uint8_t)(length & 0xff));
+                //iplRomClient.setAddress(ramAddress);
+                //for (unsigned int i = 0; i < length; i++) {
+                    //data = Uart::readByte(&uartReadResult);
+                    //if (!uartReadResult)
+                        //break;
+                    //iplRomClient.write(data);
+                //}
+                //Serial.write((uint8_t)(length >> 8));
+                //Serial.write((uint8_t)(length & 0xff));
+                //break;
 
-             // Write single port. Two following bytes are read for address and
-             // value.
+            // Write single port. Two following bytes are read for address and
+            // value.
             case 'W':
-                port = Uart::readByte(&error);
-                if (error) {
-                    Serial.write(0x00);
+                port = Uart::readByte(&uartReadResult);
+                if (!uartReadResult) {
+                    Serial.write(SERIAL_WRITE_ERROR);
                     break;
                 }
-                data = Uart::readByte(&error);
-                if (error) {
-                    Serial.write(0x00);
+                data = Uart::readByte(&uartReadResult);
+                if (!uartReadResult) {
+                    Serial.write(SERIAL_WRITE_ERROR);
                     break;
                 }
                 spcHal.write(port, data);
-                Serial.write(0x01);
+                Serial.write(SERIAL_WRITE_SUCCESS);
                 break;
         }
     }
@@ -140,7 +200,7 @@ void setup() {
     Serial.begin(BAUD_RATE);
     spcHal.setPortPins(PORT_0_PIN, PORT_1_PIN);
     spcHal.setDataPins(DATA_0_PIN, DATA_1_PIN, DATA_2_PIN, DATA_3_PIN, DATA_4_PIN, DATA_5_PIN, DATA_6_PIN, DATA_7_PIN);
-    iplRomClient.reset();
+    serialWriteResult(iplRomClient.reset());
 }
 
 void loop() {

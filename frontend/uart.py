@@ -75,7 +75,6 @@ class Uart:
     def reset(cls, serial):
         serial.write(b'R')
         result = serial.read()
-        print(result)
         if result != b'1':
             raise SpcExpection('SPC reset timed out')
 

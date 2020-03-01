@@ -13,7 +13,16 @@ public:
     bool start(uint16_t address);
 
 private:
-    void resetState();
+    /**
+     * @brief Wait for the SPC to write given expectedValue value to given
+     * outport port.
+     *
+     * @param port Port to read from 0 to 4.
+     * @param expectedValue Expected value from SPC.
+     *
+     * @return Return true on successful read of expected value or false if value is not
+     * received before timeout.
+     */
     bool waitForInput(uint8_t port, uint8_t expectedValue);
 
     SpcHal& mSpcHal;
