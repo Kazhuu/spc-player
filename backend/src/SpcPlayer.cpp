@@ -6,7 +6,7 @@ static uint8_t bootCode[] = {
     0x8F, 0xFF, 0xFC, //      Mov [0FCh], #timer_2
     0x8F, 0xFF, 0xFB, //      Mov [0FBh], #timer_1
     0x8F, 0x4F, 0xFA, //      Mov [0FAh], #timer_0
-    0x8F, 0x31, 0xF1, //      Mov [0F1h], #ctrl_byte
+    0x8F, 0x00, 0xF1, //      Mov [0F1h], #ctrl_byte
     0xCD, 0x53,       //      Mov X, #Ack_byte
     0xD8, 0xF4,       //      Mov [0F4h], X
 
@@ -23,11 +23,11 @@ static uint8_t bootCode[] = {
     0x8F, 0x4C, 0xF2, //      Mov [0F2h], 4Ch
     0x8F, 0x00, 0xF3, //      Mov [0F3h], #key_on_byte
     0x8F, 0x7F, 0xF2, //      Mov [0F2h], #dsp_control_register_byte
-    0xCD, 0xF5,       //      Mov X, #stack_pointer
+    0xCD, 0xEF,       //      Mov X, #stack_pointer
     0xBD,             //      Mov SP, X
-    0xE8, 0xFF,       //      Mov A, #A_register_byte
-    0x8D, 0x00,       //      Mov Y, #Y_register_byte
+    0xE8, 0x00,       //      Mov A, #A_register_byte
     0xCD, 0x00,       //      Mov X, #X_register_byte
+    0x8D, 0x00,       //      Mov Y, #Y_register_byte
     0x7F              //      RetI
 };
 

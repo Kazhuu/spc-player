@@ -99,13 +99,6 @@ void handleSerialCommand() {
                 Serial.write(SERIAL_WRITE_SUCCESS);
                 break;
 
-            //case 'S': // Start SPC execution from given ram address.
-                //ramAddress = Uart::readShort(&uartReadResult);
-                //if (uartReadResult)
-                    //break;
-                //serialWriteResult(iplRomClient.start(ramAddress));
-                //break;
-
             // Write all 128 DSP register. One byte per register.
             case 'D':
                 for (uint32_t i = 0; i < 128; ++i) {
@@ -157,29 +150,6 @@ void handleSerialCommand() {
                     Serial.write(SERIAL_WRITE_SUCCESS);
                 }
                 break;
-            // Write block of bytes to ram from given address and amount of
-            // given length.
-            //case 'B':
-                //ramAddress = Uart::readShort(&uartReadResult);
-                //if (!uartReadResult)
-                    //break;
-                //Serial.write((uint8_t)(ramAddress >> 8));
-                //Serial.write((uint8_t)(ramAddress & 0xff));
-                //length = Uart::readShort(&uartReadResult);
-                //if (!uartReadResult)
-                    //break;
-                //Serial.write((uint8_t)(length >> 8));
-                //Serial.write((uint8_t)(length & 0xff));
-                //iplRomClient.setAddress(ramAddress);
-                //for (unsigned int i = 0; i < length; ++i) {
-                    //data = Uart::readByte(&uartReadResult);
-                    //if (!uartReadResult)
-                        //break;
-                    //iplRomClient.write(data);
-                //}
-                //Serial.write((uint8_t)(length >> 8));
-                //Serial.write((uint8_t)(length & 0xff));
-                //break;
 
             // Write single port. Two following bytes are read for address and
             // value.
