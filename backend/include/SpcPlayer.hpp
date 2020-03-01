@@ -19,8 +19,10 @@ private:
     uint8_t mARegister, mXRegister, mYRegister;
     uint8_t mStackPointer;
     uint8_t mProgramStatusWord;
-    uint8_t mDspKeyOnRegister;
-    uint8_t mDspFlagRegister;
+    uint8_t mPort0Value;
+    uint8_t mPort1Value;
+    uint8_t mPort2Value;
+    uint8_t mPort3Value;
 };
 
 #endif

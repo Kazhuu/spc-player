@@ -54,7 +54,7 @@ uint8_t SpcHal::read(uint8_t port) {
     __asm__ __volatile__("nop");
     __asm__ __volatile__("nop");
     // Read eight data lines.
-    for (int i = 0; i < 8; i++) {
+    for (int i = 0; i < 8; ++i) {
         data |= (digitalRead(mDataPins[i]) << i);
     }
     // Set read line high again.
@@ -70,7 +70,7 @@ void SpcHal::write(uint8_t port, uint8_t value) {
     digitalWrite(mPortPins[0], port & 0x01);
     digitalWrite(mPortPins[1], port & 0x02);
     // Put value on data lines.
-    for (int i = 0; i < 8; i++) {
+    for (int i = 0; i < 8; ++i) {
         digitalWrite(mDataPins[i], value & (1 << i));
     }
     // Set write line low and delay a bit to give time for SPC to read it.

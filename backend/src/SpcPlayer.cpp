@@ -39,8 +39,10 @@ SpcPlayer::SpcPlayer(IplRomClient& iplRomClient) :
     mYRegister(0),
     mStackPointer(0xEF),
     mProgramStatusWord(0),
-    mDspKeyOnRegister(0),
-    mDspFlagRegister(0) {}
+    mPort0Value(0),
+    mPort1Value(0),
+    mPort2Value(0),
+    mPort3Value(0) {}
 
 void SpcPlayer::setCpuRegisters(uint16_t programCounter, uint8_t aRegister, uint8_t xRegister, uint8_t yRegister, uint8_t stackPointer, uint8_t programStatusWord) {
     mProgramCounter = programCounter;
@@ -52,17 +54,16 @@ void SpcPlayer::setCpuRegisters(uint16_t programCounter, uint8_t aRegister, uint
 }
 
 bool SpcPlayer::setDspRegisters(uint8_t* dspRegisters) {
-    uint8_t value;
     bool addressResult, write1Result, write2Result;
     for (uint8_t i = 0; i < 128; ++i) {
         uint8_t value = dspRegisters[i];
-        // Key on register mute all voices.
+        // DSP key on (KON) register, mute all voices from 0 to 7.
         if (i == 0x4C) {
-            mDspKeyOnRegister = dspRegisters[i];
+            bootCode[44] = value;
             value = 0x00;
-        // Control register, force mute and disable echo from messing memory.
+        // DSP control (FLG) register, force mute and disable echo from messing memory.
         } else if (i == 0x6C) {
-            mDspFlagRegister = dspRegisters[i];
+            bootCode[38] = value;
             value = 0x60;
         }
         addressResult = mIplRomClient.setAddress(0x00F2);
@@ -76,7 +77,36 @@ bool SpcPlayer::setDspRegisters(uint8_t* dspRegisters) {
 }
 
 bool SpcPlayer::setFirstPageRam(uint8_t* firstPageRam) {
-    return false;
+    bool result = mIplRomClient.setAddress(0x0002);
+    if (!result) {
+        return false;
+    }
+    // Preserve first two bytes of RAM. They are used by IPL ROM during writing
+    // procedure.
+    bootCode[1] = firstPageRam[0];
+    bootCode[4] = firstPageRam[1];
+    // Write first page ram from 0x0002 to until peripheral registers which start from 0x00F0.
+    for (uint32_t i = 0x0002; i < 0x00F0; ++i) {
+        uint8_t value = firstPageRam[i];
+        result = mIplRomClient.write(value);
+        if (!result) {
+            return false;
+        }
+    }
+     // Control register.
+    bootCode[16] = firstPageRam[0x00F1];
+     // DSP address register.
+    bootCode[47] = firstPageRam[0x00F2];
+    // Store original port values. Will be written after boot code is executed.
+    mPort0Value = firstPageRam[0x00F4];
+    mPort1Value = firstPageRam[0x00F5];
+    mPort2Value = firstPageRam[0x00F6];
+    mPort3Value = firstPageRam[0x00F7];
+    // Store original timer values.
+    bootCode[7] = firstPageRam[0x00FA];
+    bootCode[10] = firstPageRam[0x00FB];
+    bootCode[13] = firstPageRam[0x00FC];
+    return true;
 }
 
 bool SpcPlayer::setSecondPageRam(uint8_t* secondPageRam) {

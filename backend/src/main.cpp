@@ -33,7 +33,7 @@ SpcPlayer spcPlayer(iplRomClient);
 
 
 void readPorts() {
-    for (uint8_t i = 0; i < 4; i++) {
+    for (uint8_t i = 0; i < 4; ++i) {
         Serial.write(spcHal.read(i));
     }
 }
@@ -135,7 +135,12 @@ void handleSerialCommand() {
                     }
                 }
                 if (uartReadResult) {
-                    Serial.write(SERIAL_WRITE_SUCCESS);
+                    bool dspResult = spcPlayer.setFirstPageRam(page);
+                    if (dspResult) {
+                        Serial.write(SERIAL_WRITE_SUCCESS);
+                    } else {
+                        Serial.write(SERIAL_WRITE_ERROR);
+                    }
                 }
                 break;
 
@@ -166,7 +171,7 @@ void handleSerialCommand() {
                 //Serial.write((uint8_t)(length >> 8));
                 //Serial.write((uint8_t)(length & 0xff));
                 //iplRomClient.setAddress(ramAddress);
-                //for (unsigned int i = 0; i < length; i++) {
+                //for (unsigned int i = 0; i < length; ++i) {
                     //data = Uart::readByte(&uartReadResult);
                     //if (!uartReadResult)
                         //break;
