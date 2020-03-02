@@ -50,17 +50,14 @@ void handleSerialCommand() {
     if (Serial.available()) {
         char result = Serial.read();
         bool uartReadResult;
-        uint8_t data;
+        uint32_t ramWrittenAmount = 0;
+        uint8_t value;
         uint8_t port;
         uint16_t programCounter;
         uint8_t aRegister, xRegister, yRegister, stackPointer, cpuFlags;
         uint8_t page[256];
 
         switch (result) {
-            case 'Q': // Read value of all four ports.
-                readPorts();
-                break;
-
             case 'R': // Reset SPC.
                 serialWriteResult(iplRomClient.reset());
                 break;
@@ -96,6 +93,7 @@ void handleSerialCommand() {
                     Serial.write(SERIAL_WRITE_ERROR);
                     break;
                 }
+                spcPlayer.writeCpuRegisters(programCounter, aRegister, xRegister, yRegister, stackPointer, cpuFlags);
                 Serial.write(SERIAL_WRITE_SUCCESS);
                 break;
 
@@ -109,7 +107,7 @@ void handleSerialCommand() {
                     }
                 }
                 if (uartReadResult) {
-                    bool dspResult = spcPlayer.setDspRegisters(page);
+                    bool dspResult = spcPlayer.writeDspRegisters(page);
                     if (dspResult) {
                         Serial.write(SERIAL_WRITE_SUCCESS);
                     } else {
@@ -128,8 +126,8 @@ void handleSerialCommand() {
                     }
                 }
                 if (uartReadResult) {
-                    bool dspResult = spcPlayer.setFirstPageRam(page);
-                    if (dspResult) {
+                    bool firstPageResult = spcPlayer.writeFirstPageRam(page);
+                    if (firstPageResult) {
                         Serial.write(SERIAL_WRITE_SUCCESS);
                     } else {
                         Serial.write(SERIAL_WRITE_ERROR);
@@ -147,8 +145,44 @@ void handleSerialCommand() {
                     }
                 }
                 if (uartReadResult) {
+                    bool secondPageResult = spcPlayer.writeSecondPageRam(page);
+                    if  (secondPageResult) {
+                        Serial.write(SERIAL_WRITE_SUCCESS);
+                    } else {
+                        Serial.write(SERIAL_WRITE_ERROR);
+                    }
+                }
+                break;
+
+            // Write rest of the ram bytes after page 1. Needs to followed by 64960
+            // bytes, will only then be successful.
+            case '2':
+                for (uint32_t i = 0; i < 0xFFC0 - 0x200; ++i) {
+                    value = Uart::readByte(&uartReadResult);
+                    if (!uartReadResult) {
+                        spcPlayer.resetRamWrite();
+                        Serial.write(SERIAL_WRITE_ERROR);
+                        break;
+                    }
+                    ramWrittenAmount = spcPlayer.writeRamByte(value);
+                    if (ramWrittenAmount == 0) {
+                        spcPlayer.resetRamWrite();
+                        Serial.write(SERIAL_WRITE_ERROR);
+                        break;
+                    }
+                }
+                if (ramWrittenAmount == 0xFF0 - 0x200) {
                     Serial.write(SERIAL_WRITE_SUCCESS);
                 }
+                break;
+
+            // Start executing.
+            case 'S':
+                serialWriteResult(spcPlayer.start());
+                break;
+
+            case 'Q': // Read value of all four ports.
+                readPorts();
                 break;
 
             // Write single port. Two following bytes are read for address and
@@ -159,12 +193,12 @@ void handleSerialCommand() {
                     Serial.write(SERIAL_WRITE_ERROR);
                     break;
                 }
-                data = Uart::readByte(&uartReadResult);
+                value = Uart::readByte(&uartReadResult);
                 if (!uartReadResult) {
                     Serial.write(SERIAL_WRITE_ERROR);
                     break;
                 }
-                spcHal.write(port, data);
+                spcHal.write(port, value);
                 Serial.write(SERIAL_WRITE_SUCCESS);
                 break;
         }

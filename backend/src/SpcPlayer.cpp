@@ -11,7 +11,7 @@ static uint8_t bootCode[] = {
     0xD8, 0xF4,       //      Mov [0F4h], X
 
     0xE4, 0xF4,       //IN0:  Mov A, [0F4h]
-    0x68, 0x00,       //      Cmp A, #IO_Byte_0
+    0x68, 0x01,       //      Cmp A, #IO_Byte_0
     0xD0, 0xFA,       //      Bne IN0
 
     0xE4, 0xF7,       //IN3:  Mov A, [0F7h]
@@ -33,10 +33,9 @@ static uint8_t bootCode[] = {
 
 SpcPlayer::SpcPlayer(IplRomClient& iplRomClient) :
     mIplRomClient(iplRomClient),
+    mRestOfRamWriteStarted(false),
+    mRestOfRamWriteCount(0),
     mProgramCounter(0),
-    mARegister(0),
-    mXRegister(0),
-    mYRegister(0),
     mStackPointer(0xEF),
     mProgramStatusWord(0),
     mPort0Value(0),
@@ -44,16 +43,20 @@ SpcPlayer::SpcPlayer(IplRomClient& iplRomClient) :
     mPort2Value(0),
     mPort3Value(0) {}
 
-void SpcPlayer::setCpuRegisters(uint16_t programCounter, uint8_t aRegister, uint8_t xRegister, uint8_t yRegister, uint8_t stackPointer, uint8_t programStatusWord) {
+void SpcPlayer::writeCpuRegisters(uint16_t programCounter, uint8_t aRegister, uint8_t xRegister, uint8_t yRegister, uint8_t stackPointer, uint8_t programStatusWord) {
     mProgramCounter = programCounter;
-    mARegister = aRegister;
-    mXRegister = xRegister;
-    mYRegister = yRegister;
-    mStackPointer = stackPointer;
+    bootCode[53] = aRegister;
+    bootCode[56] = xRegister;
+    bootCode[58] = yRegister;
+    if (stackPointer < 3) {
+        mStackPointer = 0x03;
+    } else {
+        mStackPointer = stackPointer;
+    }
     mProgramStatusWord = programStatusWord;
 }
 
-bool SpcPlayer::setDspRegisters(uint8_t* dspRegisters) {
+bool SpcPlayer::writeDspRegisters(uint8_t* dspRegisters) {
     bool addressResult, write1Result, write2Result;
     for (uint8_t i = 0; i < 128; ++i) {
         uint8_t value = dspRegisters[i];
@@ -76,7 +79,7 @@ bool SpcPlayer::setDspRegisters(uint8_t* dspRegisters) {
     return true;
 }
 
-bool SpcPlayer::setFirstPageRam(uint8_t* firstPageRam) {
+bool SpcPlayer::writeFirstPageRam(uint8_t* firstPageRam) {
     bool result = mIplRomClient.setAddress(0x0002);
     if (!result) {
         return false;
@@ -102,6 +105,10 @@ bool SpcPlayer::setFirstPageRam(uint8_t* firstPageRam) {
     mPort1Value = firstPageRam[0x00F5];
     mPort2Value = firstPageRam[0x00F6];
     mPort3Value = firstPageRam[0x00F7];
+    // This byte boot code will expect from port 0.
+    bootCode[25] = mPort0Value;
+    // This byte boot code will expect from port 3.
+    bootCode[31] = mPort3Value;
     // Store original timer values.
     bootCode[7] = firstPageRam[0x00FA];
     bootCode[10] = firstPageRam[0x00FB];
@@ -109,10 +116,73 @@ bool SpcPlayer::setFirstPageRam(uint8_t* firstPageRam) {
     return true;
 }
 
-bool SpcPlayer::setSecondPageRam(uint8_t* secondPageRam) {
-    return false;
+bool SpcPlayer::writeSecondPageRam(uint8_t* secondPageRam) {
+    bool result = mIplRomClient.setAddress(0x0100);
+    if (!result) {
+        return false;
+    }
+    for (uint32_t i = 0; i < 256; ++i) {
+        uint32_t ramAddress = i + 0x100;
+        uint8_t value = secondPageRam[i];
+        // Stack pointer for the boot code.
+        if ((uint32_t)(mStackPointer - 3) == ramAddress) {
+            bootCode[50] = mStackPointer - 3;
+        // Boot code RETI opcode will first pop PSW from the stack.
+        } else if ((uint32_t)(mStackPointer - 2) == ramAddress) {
+            value = mProgramStatusWord;
+        // Then RETI opcode will pop two bytes of program counter. This is the
+        // start of the program in the SPC file.
+        } else if ((uint32_t)(mStackPointer - 1) == ramAddress) {
+            value = (uint8_t)(mProgramCounter >> 8);
+        } else if (mStackPointer == ramAddress) {
+            value = (uint8_t)(mProgramCounter & 0xFF);
+        }
+        result = mIplRomClient.write(value);
+        if (!result) {
+            return false;
+        }
+    }
+    return true;
 }
 
 uint32_t SpcPlayer::writeRamByte(uint8_t byte) {
-    return 0;
+    if (mRestOfRamWriteCount > 0xFFC0 - 0x200) {
+        return 0xFFC0 - 0x200;
+    }
+    if (!mRestOfRamWriteStarted) {
+        bool result = mIplRomClient.setAddress(0x0200);
+        if (!result) {
+            mRestOfRamWriteCount = 0;
+            return 0;
+        }
+        mRestOfRamWriteCount = 0;
+        mRestOfRamWriteStarted = true;
+    }
+    bool result = mIplRomClient.write(byte);
+    if (!result) {
+        mRestOfRamWriteStarted = false;
+        mRestOfRamWriteCount = 0;
+        return 0;
+    }
+    mRestOfRamWriteCount++;
+    return mRestOfRamWriteCount;
+}
+
+void SpcPlayer::resetRamWrite() {
+    mRestOfRamWriteCount = 0;
+    mRestOfRamWriteStarted = false;
+}
+
+bool SpcPlayer::start(uint16_t bootCodeAddress) {
+    bool result = mIplRomClient.setAddress(bootCodeAddress);
+    if (!result) {
+        return false;
+    }
+    for (uint32_t i = 0; i < sizeof(bootCode); ++i) {
+        result = mIplRomClient.write(bootCode[i]);
+        if (!result) {
+            return false;
+        }
+    }
+    return mIplRomClient.start(bootCodeAddress);
 }

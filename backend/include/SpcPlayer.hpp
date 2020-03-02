@@ -7,16 +7,19 @@
 class SpcPlayer {
 public:
     SpcPlayer(IplRomClient& iplRomClient);
-    void setCpuRegisters(uint16_t programCounter, uint8_t aRegister, uint8_t xRegister, uint8_t yRegister, uint8_t stackPointer, uint8_t programStatusWord);
-    bool setDspRegisters(uint8_t* dspRegisters);
-    bool setFirstPageRam(uint8_t* firstPageRam);
-    bool setSecondPageRam(uint8_t* secondPageRam);
+    void writeCpuRegisters(uint16_t programCounter, uint8_t aRegister, uint8_t xRegister, uint8_t yRegister, uint8_t stackPointer, uint8_t programStatusWord);
+    bool writeDspRegisters(uint8_t* dspRegisters);
+    bool writeFirstPageRam(uint8_t* firstPageRam);
+    bool writeSecondPageRam(uint8_t* secondPageRam);
     uint32_t writeRamByte(uint8_t byte);
+    void resetRamWrite();
+    bool start(uint16_t bootCodeAddress=0x0100);
 
 private:
     IplRomClient& mIplRomClient;
+    bool mRestOfRamWriteStarted;
+    uint32_t mRestOfRamWriteCount;
     uint16_t mProgramCounter;
-    uint8_t mARegister, mXRegister, mYRegister;
     uint8_t mStackPointer;
     uint8_t mProgramStatusWord;
     uint8_t mPort0Value;
