@@ -48,6 +48,7 @@ class Uart:
 
     @classmethod
     def write_rest_of_the_ram(cls, serial, rest_of_the_ram):
+        # TODO: Make SPC return error codes and use them here instead.
         serial.write(b'2')
         for index, value in enumerate(rest_of_the_ram):
             data = cls.int_to_byte(value)

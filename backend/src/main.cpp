@@ -4,6 +4,7 @@
 #include "Uart.hpp"
 #include "Arduino.h"
 
+// TODO: Remove these and use function specific error codes.
 #define SERIAL_WRITE_SUCCESS '1'
 #define SERIAL_WRITE_ERROR '0'
 
