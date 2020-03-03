@@ -6,6 +6,10 @@ IplRomClient::IplRomClient(SpcHal& spcHal, uint32_t timeoutValue) :
     mWriteCounter(0),
     mTimeoutValue(timeoutValue) {};
 
+SpcHal& IplRomClient::getSpcHal() {
+    return mSpcHal;
+}
+
 bool IplRomClient::reset() {
     mWriteCounter = 0;
     mFirstTransfer = true;

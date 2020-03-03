@@ -7,28 +7,6 @@ from list_action import ListAction
 from uart import Uart
 
 
-boot_code = [
-    # first two bytes of ram
-    0x8F, 0x00, 0x00,  # mov (0x00) #imm
-    0x8F, 0x00, 0x01,  # mov (0x01) #imm
-    # start timers
-    0x8F, 0x07, 0xF1,  # mov ($F1), #$07
-    # stack pointer
-    0xCD, 0x00,        # mov x, #imm
-    0xBD,              # mov SP, x
-    # push PWS to stack
-    0xCD, 0x00,        # mov x, #imm
-    0x4D,              # push x
-    # A, X, Y registers
-    0xEA, 0x00,        # mov a, #imm
-    0xCD, 0x00,        # mov x, #imm
-    0x8D, 0x00,        # mov y, #imm
-    # restore PSW from stack
-    0x8E,              # pop psw
-    # jump to saved program counter
-    0x5f, 0x00, 0x00   # jmp !a
-]
-
 parser = argparse.ArgumentParser(
     description='Program to upload a SNES SPC music file to the original sound module via Arduino over serial'
 )
@@ -37,35 +15,26 @@ parser.add_argument('spc_file', help='Path to the SPC sound file')
 parser.add_argument("-l", "--list", help="Print available serial ports", action=ListAction)
 args = parser.parse_args()
 
+def dumpBootCode(serial):
+    serial.write(b'B')
+    code = serial.read(59)
+    print(code)
+
 with open(args.spc_file, 'rb') as f:
     spc = Spc(f)
-    import ipdb; ipdb.set_trace()
-    # with Serial(args.serial_port, 115200, timeout=3) as serial:
-        # Uart.reset(serial)
-        # print('opened port {0}'.format(serial.name))
-        # Uart.write_block(serial, 0x0100, spc.ram[0x0100:0xFFC0])
-        # print('ram')
-        # Uart.write_block(serial, 0x0002, spc.ram[0x0002:0x00F0])
-        # print('page 0')
-        # Uart.write_dsp_registers(serial, 0, spc.dsp_registers)
-        # print('dsp registers')
-
-        # # Prepare boot code.
-        # boot_code[1] = spc.ram[0]
-        # boot_code[4] = spc.ram[1]
-        # boot_code[10] = spc.stack_pointer
-        # boot_code[13] = spc.program_status_word
-        # boot_code[16] = spc.a_register
-        # boot_code[18] = spc.x_register
-        # boot_code[20] = spc.y_register
-        # boot_code[23] = spc.program_couter[1]
-        # boot_code[24] = spc.program_couter[0]
-        # boot_code_address = 0xFFC0 - len(boot_code)
-
-        # Uart.write_block(serial, 0x00FA, spc.ram[0x00FA:0x00FD])
-        # print('timers')
-        # Uart.write_block(serial, boot_code_address, boot_code)
-        # print('boot code')
-        # Uart.start(serial, boot_code_address)
-        # print('started execution from: 0x{:02x}{:02x}'.format(spc.program_couter[0], spc.program_couter[1]))
-        # print(Uart.read_ports(serial))
+    with Serial(args.serial_port, 19200, timeout=3) as serial:
+        Uart.reset(serial)
+        print('opened port {0}'.format(serial.name))
+        Uart.write_cpu_registers(serial, spc.program_couter, spc.a_register, spc.x_register, spc.y_register, spc.stack_pointer, spc.program_status_word)
+        print('write CPU registers successful')
+        Uart.write_dsp_registers(serial, spc.dsp_registers)
+        print('write DSP registers successful')
+        Uart.write_first_page_ram(serial, spc.first_page_ram)
+        print('write first page RAM successful')
+        Uart.write_second_page_ram(serial, spc.second_page_ram)
+        print('write second page RAM successful')
+        Uart.write_rest_of_the_ram(serial, spc.rest_of_the_ram)
+        print('write rest of the RAM successful')
+        Uart.start(serial)
+        print('SPC exexution started successfully')
+        dumpBootCode(serial)

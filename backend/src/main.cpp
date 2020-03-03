@@ -24,7 +24,7 @@
 
 #define RESET_PIN A0
 
-#define BAUD_RATE 115200
+#define BAUD_RATE 19200
 
 
 SpcHal spcHal(READ_PIN, WRITE_PIN, RESET_PIN);
@@ -161,18 +161,18 @@ void handleSerialCommand() {
                     value = Uart::readByte(&uartReadResult);
                     if (!uartReadResult) {
                         spcPlayer.resetRamWrite();
-                        Serial.write(SERIAL_WRITE_ERROR);
+                        Serial.write('1');
                         break;
                     }
                     ramWrittenAmount = spcPlayer.writeRamByte(value);
                     if (ramWrittenAmount == 0) {
                         spcPlayer.resetRamWrite();
-                        Serial.write(SERIAL_WRITE_ERROR);
+                        Serial.write('2');
                         break;
                     }
                 }
-                if (ramWrittenAmount == 0xFF0 - 0x200) {
-                    Serial.write(SERIAL_WRITE_SUCCESS);
+                if (ramWrittenAmount == 0xFFC0 - 0x200) {
+                    Serial.write('0');
                 }
                 break;
 
@@ -201,6 +201,12 @@ void handleSerialCommand() {
                 spcHal.write(port, value);
                 Serial.write(SERIAL_WRITE_SUCCESS);
                 break;
+
+            // Dump boot code of 59 bytes.
+            case 'B':
+                spcPlayer.dumpBootCode();
+                break;
+
         }
     }
 }

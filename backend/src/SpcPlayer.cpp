@@ -1,4 +1,5 @@
 #include "SpcPlayer.hpp"
+#include "Arduino.h"
 
 static uint8_t bootCode[] = {
     0x8F, 0x00, 0x00, //      Mov [0], #byte_0
@@ -7,8 +8,8 @@ static uint8_t bootCode[] = {
     0x8F, 0xFF, 0xFB, //      Mov [0FBh], #timer_1
     0x8F, 0x4F, 0xFA, //      Mov [0FAh], #timer_0
     0x8F, 0x00, 0xF1, //      Mov [0F1h], #ctrl_byte
-    0xCD, 0x53,       //      Mov X, #Ack_byte
-    0xD8, 0xF4,       //      Mov [0F4h], X
+    0xCD, 0x23,       //      Mov X, #Ack_byte
+    0xD8, 0xF5,       //      Mov [0F5h], X
 
     0xE4, 0xF4,       //IN0:  Mov A, [0F4h]
     0x68, 0x01,       //      Cmp A, #IO_Byte_0
@@ -46,8 +47,8 @@ SpcPlayer::SpcPlayer(IplRomClient& iplRomClient) :
 void SpcPlayer::writeCpuRegisters(uint16_t programCounter, uint8_t aRegister, uint8_t xRegister, uint8_t yRegister, uint8_t stackPointer, uint8_t programStatusWord) {
     mProgramCounter = programCounter;
     bootCode[53] = aRegister;
-    bootCode[56] = xRegister;
-    bootCode[58] = yRegister;
+    bootCode[55] = xRegister;
+    bootCode[57] = yRegister;
     if (stackPointer < 3) {
         mStackPointer = 0x03;
     } else {
@@ -105,8 +106,6 @@ bool SpcPlayer::writeFirstPageRam(uint8_t* firstPageRam) {
     mPort1Value = firstPageRam[0x00F5];
     mPort2Value = firstPageRam[0x00F6];
     mPort3Value = firstPageRam[0x00F7];
-    // This byte boot code will expect from port 0.
-    bootCode[25] = mPort0Value;
     // This byte boot code will expect from port 3.
     bootCode[31] = mPort3Value;
     // Store original timer values.
@@ -121,20 +120,21 @@ bool SpcPlayer::writeSecondPageRam(uint8_t* secondPageRam) {
     if (!result) {
         return false;
     }
+    uint16_t stackPointer = mStackPointer + 0x100;
     for (uint32_t i = 0; i < 256; ++i) {
         uint32_t ramAddress = i + 0x100;
         uint8_t value = secondPageRam[i];
         // Stack pointer for the boot code.
-        if ((uint32_t)(mStackPointer - 3) == ramAddress) {
+        if (stackPointer - 3 == ramAddress) {
             bootCode[50] = mStackPointer - 3;
         // Boot code RETI opcode will first pop PSW from the stack.
-        } else if ((uint32_t)(mStackPointer - 2) == ramAddress) {
+        } else if (stackPointer - 2 == ramAddress) {
             value = mProgramStatusWord;
         // Then RETI opcode will pop two bytes of program counter. This is the
         // start of the program in the SPC file.
-        } else if ((uint32_t)(mStackPointer - 1) == ramAddress) {
+        } else if (stackPointer - 1 == ramAddress) {
             value = (uint8_t)(mProgramCounter >> 8);
-        } else if (mStackPointer == ramAddress) {
+        } else if (stackPointer == ramAddress) {
             value = (uint8_t)(mProgramCounter & 0xFF);
         }
         result = mIplRomClient.write(value);
@@ -184,5 +184,29 @@ bool SpcPlayer::start(uint16_t bootCodeAddress) {
             return false;
         }
     }
-    return mIplRomClient.start(bootCodeAddress);
+    result = mIplRomClient.start(bootCodeAddress);
+    if (!result) {
+        mIplRomClient.reset();
+        return false;
+    }
+    SpcHal& spcHal = mIplRomClient.getSpcHal();
+    uint8_t acknowledge = spcHal.read(1);
+    if (acknowledge != 0x23) {
+        mIplRomClient.reset();
+        return false;
+    }
+    spcHal.write(1, mPort1Value);
+    spcHal.write(2, mPort2Value);
+    spcHal.write(3, mPort3Value);
+    spcHal.write(0, 0x01);
+    spcHal.write(0, mPort0Value);
+    return true;
+}
+
+// Remove this.
+void SpcPlayer::dumpBootCode() {
+    for (int i = 0; i < sizeof(bootCode); ++i) {
+        Serial.write(bootCode[i]);
+    }
+
 }

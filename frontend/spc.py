@@ -3,6 +3,9 @@ class Spc:
     def __init__(self, spc_file):
         self._cpu_registers(spc_file)
         self.ram = self._ram(spc_file)
+        self.first_page_ram = self.ram[0x0000:0x0100]
+        self.second_page_ram = self.ram[0x0100:0x0200]
+        self.rest_of_the_ram = self.ram[0x0200:0xFFC0]
         self.dsp_registers = self._dsp_registers(spc_file)
 
     def _cpu_registers(self, spc_file):

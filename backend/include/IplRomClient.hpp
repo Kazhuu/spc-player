@@ -7,6 +7,7 @@
 class IplRomClient {
 public:
     IplRomClient(SpcHal& spcHal, uint32_t timeoutValue=500);
+    SpcHal& getSpcHal();
     bool reset();
     bool setAddress(uint16_t address);
     bool write(uint8_t data);

@@ -14,6 +14,8 @@ public:
     uint32_t writeRamByte(uint8_t byte);
     void resetRamWrite();
     bool start(uint16_t bootCodeAddress=0x0100);
+    // Remove this.
+    void dumpBootCode();
 
 private:
     IplRomClient& mIplRomClient;
