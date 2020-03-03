@@ -13,7 +13,7 @@ public:
     bool writeSecondPageRam(uint8_t* secondPageRam);
     uint32_t writeRamByte(uint8_t byte);
     void resetRamWrite();
-    bool start(uint16_t bootCodeAddress=0x0100);
+    bool start(uint16_t bootCodeAddress=0xFF85);
     // Remove this.
     void dumpBootCode();
 
