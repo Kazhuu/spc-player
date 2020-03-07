@@ -2,6 +2,8 @@
 
 Arduino based SNES SPC file music player with the original SNES hardware.
 
+![Arduino and SNES APU connected](/images/arduino-apu-connected.jpg?raw=true "Arduino and SNES APU connected")
+
 This project is heavily based on these two projects:
 https://github.com/emukidid/SNES_APU_SD and
 https://www.caitsith2.com/snes/apu.htm.
@@ -17,3 +19,4 @@ Cacophony.
 * Comment code with Doxygen when cleaned up.
 * Add description of the project to this repository.
 * Add schematics.
+
