@@ -1,5 +1,4 @@
 #include "SpcPlayer.hpp"
-#include "Arduino.h"
 
 static uint8_t bootCode[] = {
     0x8F, 0x00, 0x00, //      Mov [0], #byte_0
@@ -158,12 +157,7 @@ uint32_t SpcPlayer::writeRamByte(uint8_t byte) {
         mRestOfRamWriteCount = 0;
         mRestOfRamWriteStarted = true;
     }
-    bool result = mIplRomClient.write(byte);
-    if (!result) {
-        mRestOfRamWriteStarted = false;
-        mRestOfRamWriteCount = 0;
-        return 0;
-    }
+    mIplRomClient.writeWithouAcknowledge(byte);
     mRestOfRamWriteCount++;
     return mRestOfRamWriteCount;
 }
@@ -203,10 +197,7 @@ bool SpcPlayer::start(uint16_t bootCodeAddress) {
     return true;
 }
 
-// Remove this.
-void SpcPlayer::dumpBootCode() {
-    for (int i = 0; i < sizeof(bootCode); ++i) {
-        Serial.write(bootCode[i]);
-    }
-
+uint8_t* SpcPlayer::getBootCode(uint32_t& size) {
+    size = sizeof(bootCode);
+    return bootCode;
 }

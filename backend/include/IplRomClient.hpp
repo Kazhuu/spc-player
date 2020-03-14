@@ -10,7 +10,8 @@ public:
     SpcHal& getSpcHal();
     bool reset();
     bool setAddress(uint16_t address);
-    bool write(uint8_t data);
+    bool write(uint8_t value);
+    void writeWithouAcknowledge(uint8_t value);
     bool start(uint16_t address);
 
 private:

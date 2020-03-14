@@ -49,8 +49,8 @@ bool IplRomClient::setAddress(uint16_t address) {
     return true;
 }
 
-bool IplRomClient::write(uint8_t data) {
-    mSpcHal.write(1, data);
+bool IplRomClient::write(uint8_t value) {
+    mSpcHal.write(1, value);
     mSpcHal.write(0, mWriteCounter);
     // Wait for SPC to respond on with write counter from port 0.
     if (!waitForInput(0, mWriteCounter)) {
@@ -59,6 +59,12 @@ bool IplRomClient::write(uint8_t data) {
     }
     mWriteCounter++;
     return true;
+}
+
+void IplRomClient::writeWithouAcknowledge(uint8_t value) {
+    mSpcHal.write(1, value);
+    mSpcHal.write(0, mWriteCounter);
+    mWriteCounter++;
 }
 
 bool IplRomClient::start(uint16_t address) {

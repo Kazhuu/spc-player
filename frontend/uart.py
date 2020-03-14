@@ -1,3 +1,5 @@
+import sys
+
 from exceptions import SpcExpection
 
 
@@ -48,15 +50,16 @@ class Uart:
 
     @classmethod
     def write_rest_of_the_ram(cls, serial, rest_of_the_ram):
-        # TODO: Make SPC return error codes and use them here instead.
         serial.write(b'2')
         for index, value in enumerate(rest_of_the_ram):
+            sys.stdout.write('\r%d%%' % ((index + 1) / len(rest_of_the_ram) * 100))
+            sys.stdout.flush()
             data = cls.int_to_byte(value)
             serial.write(data)
-            print(index)
+        sys.stdout.write('\n')
         result = serial.read()
-        if result != b'0':
-            raise SpcExpection('writing rest of the ram failed with error code {0}'.format(result))
+        if result != b'1':
+            raise SpcExpection('writing rest of the ram failed')
 
     @classmethod
     def read_ports(cls, serial):
@@ -76,9 +79,15 @@ class Uart:
     def start(cls, serial):
         serial.write(b'S')
         result = serial.read()
-        print(result)
         if result != b'1':
             raise SpcExpection('starting SPC execution failed with error code {0}'.format(result))
+
+    @classmethod
+    def readBootCode(cls, serial):
+        serial.write(b'B')
+        size = cls.int_from_bytes(serial.read(1))
+        code = serial.read(size)
+        return code
 
     @classmethod
     def reset(cls, serial):

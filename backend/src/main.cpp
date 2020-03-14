@@ -4,7 +4,6 @@
 #include "Uart.hpp"
 #include "Arduino.h"
 
-// TODO: Remove these and use function specific error codes.
 #define SERIAL_WRITE_SUCCESS '1'
 #define SERIAL_WRITE_ERROR '0'
 
@@ -25,7 +24,7 @@
 
 #define RESET_PIN A0
 
-#define BAUD_RATE 19200
+#define BAUD_RATE 38400
 
 
 SpcHal spcHal(READ_PIN, WRITE_PIN, RESET_PIN);
@@ -52,6 +51,8 @@ void handleSerialCommand() {
         char result = Serial.read();
         bool uartReadResult;
         uint32_t ramWrittenAmount = 0;
+        uint8_t* bootCodePointer;
+        uint32_t bootCodeSize;
         uint8_t value;
         uint8_t port;
         uint16_t programCounter;
@@ -162,18 +163,18 @@ void handleSerialCommand() {
                     value = Uart::readByte(&uartReadResult);
                     if (!uartReadResult) {
                         spcPlayer.resetRamWrite();
-                        Serial.write('1');
+                        Serial.write(SERIAL_WRITE_ERROR);
                         break;
                     }
                     ramWrittenAmount = spcPlayer.writeRamByte(value);
                     if (ramWrittenAmount == 0) {
                         spcPlayer.resetRamWrite();
-                        Serial.write('2');
+                        Serial.write(SERIAL_WRITE_ERROR);
                         break;
                     }
                 }
                 if (ramWrittenAmount == 0xFFC0 - 0x200) {
-                    Serial.write('0');
+                    Serial.write(SERIAL_WRITE_SUCCESS);
                 }
                 break;
 
@@ -203,11 +204,15 @@ void handleSerialCommand() {
                 Serial.write(SERIAL_WRITE_SUCCESS);
                 break;
 
-            // Dump boot code of 59 bytes.
+            // Read boot code by first writing it's size in one byte and
+            // followed by boot code amount of size.
             case 'B':
-                spcPlayer.dumpBootCode();
+                bootCodePointer = spcPlayer.getBootCode(bootCodeSize);
+                Serial.write((uint8_t)bootCodeSize);
+                for (uint32_t i = 0; i < bootCodeSize; ++i) {
+                    Serial.write(bootCodePointer[i]);
+                }
                 break;
-
         }
     }
 }
