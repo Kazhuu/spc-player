@@ -14,7 +14,9 @@ Cacophony.
 
 ## Audio Processing Unit (APU) Pinout
 
-![APU Pinout](/images/apu-pinout.png?raw=true "APU pinout")
+<p align="center">
+  <img src="https://github.com/Kazhuu/spc-player/blob/master/images/apu-pinout.png?raw=true" alt="APU Pinout"/>
+</p>
 
 PA0 - PA1 = Port address from port 0 to port 3
 D0 - D7 = Data lines for input and output
