@@ -20,9 +20,9 @@ Cacophony.
 
 * ~ means active low signal.
 * PA7 is port address bit 7, connected to active low chip select (~CS) pin on
-    SPC700 chip. Pull this high to 5V.
-* PA6 is port address bit 6, connected to chip select (CS) pin on SPC700 chip.
-    Pull this low to GND.
+    the SPC700 chip. Pull this low to GND.
+* PA6 is port address bit 6, connected to chip select (CS) pin on the SPC700 chip.
+    Pull this high to 5V.
 * PA0 and PA1 are port address bits 0 and 1. Used to select which port from 0 to
     3 to write or read.
 * From D0 to D7 are data lines for input and output a single byte.
