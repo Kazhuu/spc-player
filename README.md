@@ -12,6 +12,10 @@ This project is a work in progress. Works on some DKC2 songs if you want to
 test. Tested and working songs include Stickerbrush Symphony and Crocodile
 Cacophony.
 
+## Audio Processing Unit (APU) Pinout
+
+![APU Pinout](/images/apu-pinout.png?raw=true "APU pinout")
+
 ## TODO
 
 * Can play some songs but not all because of the fixed boot code location.
