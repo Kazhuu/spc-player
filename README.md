@@ -18,20 +18,22 @@ Cacophony.
   <img src="https://github.com/Kazhuu/spc-player/blob/master/images/apu-pinout.png?raw=true" alt="APU Pinout"/>
 </p>
 
-PA0 - PA1 = Port address from port 0 to port 3
-D0 - D7 = Data lines for input and output
-RD = Read, APU will output data to lines D0 to D7
-WR = Write, APU will input data from lines D0 to D7
-PA7 = Connected to active low chip select (CS), connect to GND
-PA6 = Connected to chip select (CS), connect to VCC (5V)
-SMPCK = Clock output from DSP, 2.23 MHz
-MUTE = Mute output from DSP
+* ~ means active low signal.
+* PA7 is port address bit 7, connected to active low chip select (~CS) pin on
+    SPC700 chip. Pull this high to 5V.
+* PA6 is port address bit 6, connected to chip select (CS) pin on SPC700 chip.
+    Pull this low to GND.
+* PA0 and PA1 are port address bits 0 and 1. Used to select which port from 0 to
+    3 to write or read.
+* From D0 to D7 are data lines for input and output a single byte.
+* RD is active low read, APU will output data to lines D0 to D7 when pulled low.
+* WR is active low write, APU will input data from lines D0 to D7 when pulled low.
+* SMPCK is a clock output from DSP with avarage clock rate of 2.23 MHz.
+* MUTE is active low mute output from DSP.
 
 ## TODO
 
 * Can play some songs but not all because of the fixed boot code location.
-* Uploading RAM takes really long, try to see for bottlenecks and remove them.
 * Comment code with Doxygen when cleaned up.
 * Add description of the project to this repository.
 * Add schematics.
-
