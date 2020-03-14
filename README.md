@@ -16,6 +16,15 @@ Cacophony.
 
 ![APU Pinout](/images/apu-pinout.png?raw=true "APU pinout")
 
+PA0 - PA1 = Port address from port 0 to port 3
+D0 - D7 = Data lines for input and output
+RD = Read, APU will output data to lines D0 to D7
+WR = Write, APU will input data from lines D0 to D7
+PA7 = Connected to active low chip select (CS), connect to GND
+PA6 = Connected to chip select (CS), connect to VCC (5V)
+SMPCK = Clock output from DSP, 2.23 MHz
+MUTE = Mute output from DSP
+
 ## TODO
 
 * Can play some songs but not all because of the fixed boot code location.
