@@ -45,7 +45,7 @@ works.
 
 Project consist of frontend Python code and backend C++ code for Arduino.
 Source codes are located under `frontend` and `backend` respectively. `images`
-folder contains images where SVG files are drawn with InkScape. `schema` folder
+folder contains images where SVG files are drawn with InkScape. `schemas` folder
 contains KiCad schema for the project.
 
 Python code is responsible of reading SPC file and uploading it's data to
