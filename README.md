@@ -13,7 +13,10 @@ Arduino UNO based SNES SPC file music player with the original Audio Processing 
 
 * [About](#about)
 * [Structure of the Project](#structure-of-the-project)
-* [Connecting APU to Arduino](#connecting-apu-to-arduino)
+* [How to Use](#how-to-use)
+  * [Connecting APU to Arduino](#connecting-apu-to-arduino)
+  * [Uploading Arduino Code](#uploading-arduino-code)
+  * [Uploading Song With Python](#uploading-song-with-python)
 * [Links](#links)
 * [TODO](#todo)
 
@@ -41,14 +44,19 @@ works.
 ## Structure of the Project
 
 Project consist of frontend Python code and backend C++ code for Arduino.
-Source codes are located under `frontend` and `backend` respectively.  Python
-code is responsible of reading SPC file and uploading it's data to Arduino over
-UART serial line. Arduino code is responsible of reading the data from the
-serial line and transferring it to APU over it's parallel data lines.  After
-uploading APU's RAM and it's registers, Python instructs Arduino to tell APU to
-start executing the song code. After this APU will keep playing the song.
+Source codes are located under `frontend` and `backend` respectively. `images`
+folder contains images where SVG files are drawn with InkScape. `schema` folder
+contains KiCad schema for the project.
 
-## Connecting APU to Arduino
+Python code is responsible of reading SPC file and uploading it's data to
+Arduino over UART serial line. Arduino code is responsible of reading the data
+from the serial line and transferring it to APU over it's parallel data lines.
+After uploading APU's RAM and it's registers, Python instructs Arduino to tell
+APU to start executing the song code. After this APU will keep playing the song.
+
+## How to Use
+
+### Connecting APU to Arduino
 
 Here is APU pinout looking from the top side:
 
@@ -70,11 +78,19 @@ Signal and symbol explanations:
 * SMPCK is a clock output from DSP with avarage clock rate of 2.23 MHz.
 * MUTE is active low mute output from DSP, it's 0V when muted and 5V when not.
 
-Connect Arduino using the following schematics:
+Connect Arduino to APU according to following diagram:
 
 <p align="center">
   <img src="https://github.com/Kazhuu/spc-player/blob/master/images/schema.png?raw=true" alt="Schema"/>
 </p>
+
+### Uploading Arduino Code
+
+Coming soon!
+
+### Uploading Song With Python
+
+Coming soon!
 
 ## Links
 
