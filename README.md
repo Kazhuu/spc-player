@@ -1,24 +1,63 @@
 # SPC Player
 
-Arduino based SNES SPC file music player with the original SNES hardware.
+Arduino UNO based SNES SPC file music player with the original Audio Processing Unit
+(APU).
 
-![Arduino and SNES APU connected](/images/arduino-apu-connected.jpg?raw=true "Arduino and SNES APU connected")
+![Arduino and SNES APU
+connected](https://github.com/Kazhuu/spc-player/blob/master/images/arduino-apu-connected.jpg?raw=true
+"Arduino and SNES APU connected")
+
+## Table of Contents
+
+<!-- vim-markdown-toc GFM -->
+
+* [About](#about)
+* [Structure of the Project](#structure-of-the-project)
+* [Connecting APU to Arduino](#connecting-apu-to-arduino)
+* [TODO](#todo)
+
+<!-- vim-markdown-toc -->
+
+## About
 
 This project is heavily based on these two projects:
-https://github.com/emukidid/SNES_APU_SD and
-https://www.caitsith2.com/snes/apu.htm.
+* https://github.com/emukidid/SNES_APU_SD and
+* https://www.caitsith2.com/snes/apu.htm.
 
 This project is a work in progress. Works on some DKC2 songs if you want to
 test. Tested and working songs include Stickerbrush Symphony and Crocodile
-Cacophony.
+Cacophony. Original SPC songs can be downloaded from
+[Zophar's](https://www.zophar.net/music) website.
 
-## Audio Processing Unit (APU) Pinout
+So what does this project provide? What other projects are lacking in my opinion
+is a good documentation. That is the gap that I want to fill.  Thus this project
+code does not aim for the SPC upload speed, instead it aims for the readability
+and documenting the code. For instance pin writings and readings are done with
+`digitalWrite()` and `digitalRead()` instead of using the port registers
+directly. This makes it easier for the reader to understand how APU parallel bus
+works.
+
+## Structure of the Project
+
+Project consist of the frontend Python code and backend C++ code for Arduino.
+Source codes are located under `frontend` and `backend` respectively.
+Python code is responsible of reading SPC file and uploading it's data to
+Arduino over UART serial line. Arduino code is responsible of reading the data
+from the serial line and transferring it to APU over it's parallel data lines.
+After uploading of APU RAM and it's registers is done Python code instructs
+Arduino to tell APU to start executing the song code. After this APU will keep
+playing the song.
+
+## Connecting APU to Arduino
+
+Here is APU pinout looking from the top side of it:
 
 <p align="center">
   <img src="https://github.com/Kazhuu/spc-player/blob/master/images/apu-pinout.png?raw=true" alt="APU Pinout"/>
 </p>
 
-* ~ means active low signal.
+Signal and symbol explanations:
+* ~ means an active low signal.
 * PA7 is port address bit 7, connected to active low chip select (~CS) pin on
     the SPC700 chip. Pull this low to GND.
 * PA6 is port address bit 6, connected to chip select (CS) pin on the SPC700 chip.
@@ -29,7 +68,11 @@ Cacophony.
 * RD is active low read, APU will output data to lines D0 to D7 when pulled low.
 * WR is active low write, APU will input data from lines D0 to D7 when pulled low.
 * SMPCK is a clock output from DSP with avarage clock rate of 2.23 MHz.
-* MUTE is active low mute output from DSP.
+* MUTE is active low mute output from DSP, it's 0V when muted and 5V when not.
+
+Following is the circuit how you need to connect Arduino UNO to APU:
+
+TODO
 
 ## TODO
 
