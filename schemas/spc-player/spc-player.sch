@@ -14,10 +14,10 @@ Comment3 ""
 Comment4 ""
 $EndDescr
 $Comp
-L snes-apu-connector:SNES_APU_CONN J?
+L snes-apu-connector:SNES_APU_CONN J1
 U 1 1 5E700C9A
 P 4400 2350
-F 0 "J?" H 4275 3165 50  0000 C CNN
+F 0 "J1" H 4275 3165 50  0000 C CNN
 F 1 "SNES_APU_CONN" H 4275 3074 50  0000 C CNN
 F 2 "" H 4400 2350 50  0001 C CNN
 F 3 "" H 4400 2350 50  0001 C CNN
@@ -163,10 +163,10 @@ Wire Wire Line
 Wire Wire Line
 	3050 2600 3050 3050
 $Comp
-L MCU_Module:Arduino_UNO_R2 A?
+L MCU_Module:Arduino_UNO_R2 A1
 U 1 1 5E6EA817
 P 2250 2300
-F 0 "A?" H 2250 3481 50  0000 C CNN
+F 0 "A1" H 2250 3481 50  0000 C CNN
 F 1 "Arduino_UNO_R2" H 2250 3390 50  0000 C CNN
 F 2 "Module:Arduino_UNO_R2" H 2250 2300 50  0001 C CIN
 F 3 "https://www.arduino.cc/en/Main/arduinoBoardUno" H 2250 2300 50  0001 C CNN
@@ -188,10 +188,10 @@ Wire Wire Line
 Wire Wire Line
 	5550 1850 5550 3500
 $Comp
-L Connector:AudioJack2_Ground J?
+L Connector:AudioJack2_Ground J2
 U 1 1 5E716921
 P 5550 1650
-F 0 "J?" H 5370 1668 50  0000 R CNN
+F 0 "J2" H 5370 1668 50  0000 R CNN
 F 1 "AudioJack2_Ground" H 5370 1577 50  0000 R CNN
 F 2 "" H 5550 1650 50  0001 C CNN
 F 3 "~" H 5550 1650 50  0001 C CNN
