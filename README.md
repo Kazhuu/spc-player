@@ -3,9 +3,9 @@
 Arduino UNO based SNES SPC file music player with the original Audio Processing Unit
 (APU).
 
-![Arduino and SNES APU
-connected](https://github.com/Kazhuu/spc-player/blob/master/images/arduino-apu-connected.jpg?raw=true
-"Arduino and SNES APU connected")
+<p align="center">
+  <img src="https://github.com/Kazhuu/spc-player/blob/master/images/arduino-apu-connected.jpg?raw=true" alt="APU and Arduino connected"/>
+</p>
 
 ## Table of Contents
 
