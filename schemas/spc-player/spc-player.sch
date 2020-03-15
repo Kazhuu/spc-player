@@ -1,0 +1,207 @@
+EESchema Schematic File Version 4
+EELAYER 30 0
+EELAYER END
+$Descr User 7874 5906
+encoding utf-8
+Sheet 1 1
+Title "SPC Player"
+Date "2020-03-15"
+Rev "1.0"
+Comp ""
+Comment1 ""
+Comment2 ""
+Comment3 ""
+Comment4 ""
+$EndDescr
+$Comp
+L snes-apu-connector:SNES_APU_CONN J?
+U 1 1 5E700C9A
+P 4400 2350
+F 0 "J?" H 4275 3165 50  0000 C CNN
+F 1 "SNES_APU_CONN" H 4275 3074 50  0000 C CNN
+F 2 "" H 4400 2350 50  0001 C CNN
+F 3 "" H 4400 2350 50  0001 C CNN
+	1    4400 2350
+	1    0    0    -1  
+$EndComp
+Wire Wire Line
+	3350 2800 3800 2800
+Wire Wire Line
+	4950 3050 4950 2800
+Wire Wire Line
+	4950 2800 4750 2800
+Wire Wire Line
+	2950 2700 2950 3150
+Wire Wire Line
+	2950 3150 5050 3150
+Wire Wire Line
+	5050 2700 4750 2700
+Wire Wire Line
+	3250 2800 3250 2700
+Wire Wire Line
+	3250 2700 3800 2700
+Wire Wire Line
+	5050 3150 5050 2700
+Wire Wire Line
+	4750 2600 5150 2600
+Wire Wire Line
+	5150 3250 2850 3250
+Wire Wire Line
+	2850 3250 2850 3000
+Wire Wire Line
+	5150 2600 5150 3250
+Wire Wire Line
+	2950 2000 2950 1350
+Wire Wire Line
+	2950 1350 5150 1350
+Wire Wire Line
+	5150 1350 5150 2500
+Wire Wire Line
+	5150 2500 4750 2500
+Wire Wire Line
+	3250 2100 3250 2400
+Wire Wire Line
+	3250 2400 3800 2400
+Wire Wire Line
+	3050 2200 3050 1450
+Wire Wire Line
+	3050 1450 5050 1450
+Wire Wire Line
+	5050 1450 5050 2400
+Wire Wire Line
+	5050 2400 4750 2400
+Wire Wire Line
+	3150 2400 3150 1550
+Wire Wire Line
+	3150 1550 4950 1550
+Wire Wire Line
+	4950 1550 4950 2300
+Wire Wire Line
+	4950 2300 4750 2300
+Wire Wire Line
+	1650 2300 1650 1100
+Wire Wire Line
+	1650 1100 3350 1100
+Wire Wire Line
+	3350 1100 3350 2200
+Wire Wire Line
+	3350 2200 3800 2200
+Wire Wire Line
+	2050 1250 4850 1250
+Wire Wire Line
+	4850 1250 4850 1800
+Wire Wire Line
+	4850 1800 4750 1800
+Wire Wire Line
+	4750 2100 4850 2100
+Wire Wire Line
+	4850 2100 4850 1800
+Connection ~ 4850 1800
+Wire Wire Line
+	2150 3500 3600 3500
+Wire Wire Line
+	4750 2900 4850 2900
+Connection ~ 4850 2100
+Wire Wire Line
+	3800 1800 3600 1800
+Wire Wire Line
+	3600 1800 3600 2000
+Connection ~ 3600 3500
+Wire Wire Line
+	3800 2000 3600 2000
+Connection ~ 3600 2000
+Wire Wire Line
+	3600 2000 3600 2900
+NoConn ~ 3800 2100
+NoConn ~ 4750 2000
+NoConn ~ 4750 2200
+Wire Wire Line
+	3800 1900 3700 1900
+Wire Wire Line
+	3700 1900 3700 1650
+Wire Wire Line
+	3600 3500 5550 3500
+Wire Wire Line
+	3800 2900 3600 2900
+Connection ~ 3600 2900
+Wire Wire Line
+	3600 2900 3600 3500
+Wire Wire Line
+	3450 2500 3800 2500
+Wire Wire Line
+	3450 1900 3450 2500
+Wire Wire Line
+	3050 3050 4950 3050
+Wire Wire Line
+	3350 2500 3350 2800
+Wire Wire Line
+	1750 2300 1650 2300
+Wire Wire Line
+	2150 3400 2150 3500
+Wire Wire Line
+	2050 1300 2050 1250
+Wire Wire Line
+	2850 3000 2750 3000
+Wire Wire Line
+	2750 2800 3250 2800
+Wire Wire Line
+	2750 2700 2950 2700
+Wire Wire Line
+	2750 2500 3350 2500
+Wire Wire Line
+	2750 2400 3150 2400
+Wire Wire Line
+	2750 2300 3800 2300
+Wire Wire Line
+	2750 2200 3050 2200
+Wire Wire Line
+	2750 2100 3250 2100
+Wire Wire Line
+	2750 2000 2950 2000
+Wire Wire Line
+	2750 1900 3450 1900
+Wire Wire Line
+	3050 2600 3050 3050
+$Comp
+L MCU_Module:Arduino_UNO_R2 A?
+U 1 1 5E6EA817
+P 2250 2300
+F 0 "A?" H 2250 3481 50  0000 C CNN
+F 1 "Arduino_UNO_R2" H 2250 3390 50  0000 C CNN
+F 2 "Module:Arduino_UNO_R2" H 2250 2300 50  0001 C CIN
+F 3 "https://www.arduino.cc/en/Main/arduinoBoardUno" H 2250 2300 50  0001 C CNN
+	1    2250 2300
+	-1   0    0    -1  
+$EndComp
+Wire Wire Line
+	2750 2900 3150 2900
+Wire Wire Line
+	2750 2600 3050 2600
+Wire Wire Line
+	3150 2900 3150 2600
+Wire Wire Line
+	3150 2600 3800 2600
+Wire Wire Line
+	4850 2100 4850 2900
+Wire Wire Line
+	4750 1900 5250 1900
+Wire Wire Line
+	5550 1850 5550 3500
+$Comp
+L Connector:AudioJack2_Ground J?
+U 1 1 5E716921
+P 5550 1650
+F 0 "J?" H 5370 1668 50  0000 R CNN
+F 1 "AudioJack2_Ground" H 5370 1577 50  0000 R CNN
+F 2 "" H 5550 1650 50  0001 C CNN
+F 3 "~" H 5550 1650 50  0001 C CNN
+	1    5550 1650
+	-1   0    0    -1  
+$EndComp
+Wire Wire Line
+	3700 1650 5350 1650
+Wire Wire Line
+	5250 1550 5250 1900
+Wire Wire Line
+	5250 1550 5350 1550
+$EndSCHEMATC

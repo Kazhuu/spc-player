@@ -14,6 +14,7 @@ Arduino UNO based SNES SPC file music player with the original Audio Processing 
 * [About](#about)
 * [Structure of the Project](#structure-of-the-project)
 * [Connecting APU to Arduino](#connecting-apu-to-arduino)
+* [Links](#links)
 * [TODO](#todo)
 
 <!-- vim-markdown-toc -->
@@ -39,18 +40,17 @@ works.
 
 ## Structure of the Project
 
-Project consist of the frontend Python code and backend C++ code for Arduino.
-Source codes are located under `frontend` and `backend` respectively.
-Python code is responsible of reading SPC file and uploading it's data to
-Arduino over UART serial line. Arduino code is responsible of reading the data
-from the serial line and transferring it to APU over it's parallel data lines.
-After uploading of APU RAM and it's registers is done Python code instructs
-Arduino to tell APU to start executing the song code. After this APU will keep
-playing the song.
+Project consist of frontend Python code and backend C++ code for Arduino.
+Source codes are located under `frontend` and `backend` respectively.  Python
+code is responsible of reading SPC file and uploading it's data to Arduino over
+UART serial line. Arduino code is responsible of reading the data from the
+serial line and transferring it to APU over it's parallel data lines.  After
+uploading APU's RAM and it's registers, Python instructs Arduino to tell APU to
+start executing the song code. After this APU will keep playing the song.
 
 ## Connecting APU to Arduino
 
-Here is APU pinout looking from the top side of it:
+Here is APU pinout looking from the top side:
 
 <p align="center">
   <img src="https://github.com/Kazhuu/spc-player/blob/master/images/apu-pinout.png?raw=true" alt="APU Pinout"/>
@@ -70,9 +70,17 @@ Signal and symbol explanations:
 * SMPCK is a clock output from DSP with avarage clock rate of 2.23 MHz.
 * MUTE is active low mute output from DSP, it's 0V when muted and 5V when not.
 
-Following is the circuit how you need to connect Arduino UNO to APU:
+Connect Arduino using the following schematics:
 
-TODO
+<p align="center">
+  <img src="https://github.com/Kazhuu/spc-player/blob/master/images/schema.png?raw=true" alt="Schema"/>
+</p>
+
+## Links
+
+* SNES schematics: https://wiki.superfamicom.org/schematics-ports-and-pinouts
+* SPC700 reference: https://wiki.superfamicom.org/spc700-reference
+* SPC file ID666 file format: http://www.snesmusic.org/files/spc_file_format.txt
 
 ## TODO
 

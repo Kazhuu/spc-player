@@ -1,0 +1,3 @@
+(sym_lib_table
+  (lib (name snes-apu-connector)(type Legacy)(uri ${KIPRJMOD}/snes-apu-connector.lib)(options "")(descr ""))
+)
