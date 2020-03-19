@@ -43,7 +43,8 @@ directly. This makes it easier for the reader to understand how APU parallel bus
 works for example.
 
 Project is develop on Linux machine and not tested on Windows. If someone finds
-something to fix please create issue about it. PRs are also welcome.
+something to fix please create an issue about it. Any kind of contribution is
+welcome.
 
 ## Structure of the Project
 
