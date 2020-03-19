@@ -128,13 +128,17 @@ I've included two Donkey Kong Country 2 songs in the frontend folder that are
 confirmed to work. You can use these to quickly test that your setup is working.
 To upload the song with Python you need to know your serial port to which
 Arduino is connected to. In Linux it will be something similar like
-`/dev/ttyACM0` and on Windows `COM4`. To upload the song in the frontend folder
-run following
+`/dev/ttyACM0` and on Windows `COM4`. To list available serial ports run
+following in the frontend folder:
+```
+python main.py -l
+```
+Pick the port and to upload the song run:
 ```
 python main.py <serial-port> dkc2-stickerbrush-symphony.spc
 ```
 
-If working correctly it should print something following and song should start
+If working correctly Python should print following and song will start
 playing.
 ```
 opened port /dev/ttyACM0
@@ -144,7 +148,7 @@ write first page RAM successful
 write second page RAM successful
 100%
 write rest of the RAM successful
-SPC exexution started successfully, uploading took 17.71s
+SPC execution started successfully, uploading took 17.71s
 ```
 
 Enjoy some awesome SNES music!
