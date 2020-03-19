@@ -155,15 +155,18 @@ for this project. I put them here in hope that someone else working on the same
 issues find them useful and don't have to waste time finding them.
 
 Most important source of information being original SNES development manual part
-1 which can be downloaded from
-[here](http://folk.uio.no/sigurdkn/snes/snes_manual1.pdf).
-On the SNES development manual most important pages are 153-179 for general sound system
-and DSP, 180-188 for SPC700 CPU and 237-240 for IPL ROM boot code procedure.
+1 which can be downloaded from this link:
+http://folk.uio.no/sigurdkn/snes/snes_manual1.pdf.
+SNES development manual most important pages include:
+* 153-179 for general sound system and DSP,
+* 180-188 for SPC700 CPU and
+* 237-240 for IPL ROM boot code procedure.
 
-Rest of the resources to be read alongside the development manual:
+Development manual can be quite hard to read for the first time so that's why
+it's recommended to read following resources alongside with the manual to put
+beef around the bones:
 
 * SPC700 reference: https://wiki.superfamicom.org/spc700-reference
-* SNES schematics: https://wiki.superfamicom.org/schematics-ports-and-pinouts
 * SPC file ID666 file format: http://www.snesmusic.org/files/spc_file_format.txt
 * SPC2 v1.1 format: http://blog.kevtris.org/blogfiles/spc2_file_specification_v1.txt
 * SPC2 v1.3 format: https://www.caitsith2.com/snes/spc2_file_specification_v1.3.txt
@@ -172,6 +175,7 @@ Rest of the resources to be read alongside the development manual:
 * SPC 700 programming tutorial: https://en.wikibooks.org/wiki/Super_NES_Programming/Loading_SPC700_programs
 * APU hardware: http://www.snesmusic.org/files/spc700.html
 * Anomie's in depth SPC700 documentation: http://www.romhacking.net/documents/197/
+* SNES schematics: https://wiki.superfamicom.org/schematics-ports-and-pinouts
 
 ## Things to Do
 
