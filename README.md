@@ -18,7 +18,7 @@ Arduino UNO based SNES SPC file music player with the original Audio Processing 
   * [Uploading Arduino Code](#uploading-arduino-code)
   * [Uploading Song With Python](#uploading-song-with-python)
 * [Links](#links)
-* [TODO](#todo)
+* [Things to Do](#things-to-do)
 
 <!-- vim-markdown-toc -->
 
@@ -36,10 +36,13 @@ Cacophony. Original SPC songs can be downloaded from
 So what does this project provide? What other projects are lacking in my opinion
 is a good documentation. That is the gap that I want to fill.  Thus this project
 code does not aim for the SPC upload speed, instead it aims for the readability
-and documenting the code. For instance pin writings and readings are done with
-`digitalWrite()` and `digitalRead()` instead of using the port registers
+and understandability the code. For instance pin writings and readings are done
+with `digitalWrite()` and `digitalRead()` instead of using the port registers
 directly. This makes it easier for the reader to understand how APU parallel bus
-works.
+works for example.
+
+Project is develop on Linux machine and not tested on Windows. If someone finds
+something to fix please create issue about it. PRs are also welcome.
 
 ## Structure of the Project
 
@@ -67,18 +70,19 @@ Here is APU pinout looking from the top side:
 Signal and symbol explanations:
 * ~ means an active low signal.
 * PA7 is port address bit 7, connected to active low chip select (~CS) pin on
-    the SPC700 chip. Pull this low to GND.
+    the SPC700 chip. Pull this low to GND to enable the chip.
 * PA6 is port address bit 6, connected to chip select (CS) pin on the SPC700 chip.
-    Pull this high to 5V.
+    Pull this high to 5V to enable the chip.
 * PA0 and PA1 are port address bits 0 and 1. Used to select which port from 0 to
     3 to write or read.
-* From D0 to D7 are data lines for input and output a single byte.
-* RD is active low read, APU will output data to lines D0 to D7 when pulled low.
-* WR is active low write, APU will input data from lines D0 to D7 when pulled low.
-* SMPCK is a clock output from DSP with avarage clock rate of 2.23 MHz.
-* MUTE is active low mute output from DSP, it's 0V when muted and 5V when not.
+* From D0 to D7 are bidirectional data lines for input and output a single byte.
+* RD is active low read, APU will write data to lines D0 to D7 when pulled low.
+* WR is active low write, APU will read data from lines D0 to D7 when pulled low.
+* SMPCK is a clock output from DSP with average clock rate of 2.23 MHz.
+* MUTE is active low mute output from DSP, it's 0V when DSP is muted and 5V when
+    not.
 
-Connect Arduino to APU according to following diagram:
+Connect Arduino to APU according following diagram:
 
 <p align="center">
   <img src="https://github.com/Kazhuu/spc-player/blob/master/images/schema.png?raw=true" alt="Schema"/>
@@ -86,11 +90,62 @@ Connect Arduino to APU according to following diagram:
 
 ### Uploading Arduino Code
 
-Coming soon!
+Arduino backend code uses [PlatformIO CLI](https://platformio.org/) tool for
+managing the project and its dependencies instead of Arduino IDE. So to compile
+and upload the code you need to download PlatformIO and build the project using
+it. First download and install it from aforementioned website. Both IDE and CLI
+are fine. Generally I prefer CLI over IDE, so the following is also written
+using it.
+
+After installing PlatformIO go to backend folder and simply run:
+```
+pio run
+```
+This should install needed Arduino toolchain, compile the source code and upload
+it to the Arduino board.
+
+Before moving to use the Python code you can test that everything is connected
+and working correctly by running following command in the backend folder:
+```
+pio run --target monitor
+```
+This will open serial monitor. Arduino code should print `1` on the serial if
+it's able to reset the APU successfully and `0` when it fails. In that case
+check your connections and try again.
 
 ### Uploading Song With Python
 
-Coming soon!
+Project uses version 3.x of Python and uses pySerial library to talk to Arduino
+over USB serial line. First install pySerial with pip by running following
+command. Remember to use pip3 if you are using Debian based system like Ubuntu.
+```
+pip install pyserial
+```
+
+I've included two Donkey Kong Country 2 songs in the frontend folder that are
+confirmed to work. You can use these to quickly test that your setup is working.
+To upload the song with Python you need to know your serial port to which
+Arduino is connected to. In Linux it will be something similar like
+`/dev/ttyACM0` and on Windows `COM4`. To upload the song in the frontend folder
+run following
+```
+python main.py <serial-port> dkc2-stickerbrush-symphony.spc
+```
+
+If working correctly it should print something following and song should start
+playing.
+```
+opened port /dev/ttyACM0
+write CPU registers successful
+write DSP registers successful
+write first page RAM successful
+write second page RAM successful
+100%
+write rest of the RAM successful
+SPC exexution started successfully, uploading took 17.71s
+```
+
+Enjoy some awesome SNES music!
 
 ## Links
 
@@ -98,9 +153,8 @@ Coming soon!
 * SPC700 reference: https://wiki.superfamicom.org/spc700-reference
 * SPC file ID666 file format: http://www.snesmusic.org/files/spc_file_format.txt
 
-## TODO
+## Things to Do
 
 * Can play some songs but not all because of the fixed boot code location.
 * Comment code with Doxygen when cleaned up.
-* Add description of the project to this repository.
-* Add schematics.
+* Add support to newer SPC formats.

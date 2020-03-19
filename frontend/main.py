@@ -34,4 +34,4 @@ if __name__ == '__main__':
             Uart.write_rest_of_the_ram(serial, spc.rest_of_the_ram)
             print('write rest of the RAM successful')
             Uart.start(serial)
-            print('SPC exexution started successfully, uploading took {0}'.format(timeit.default_timer() - start_time))
+            print('SPC exexution started successfully, uploading took {0}s'.format(round(timeit.default_timer() - start_time, 2)))
