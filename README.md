@@ -3,9 +3,7 @@
 Arduino UNO based SNES SPC file music player with the original Audio Processing Unit
 (APU).
 
-<p align="center">
-  <img src="https://github.com/Kazhuu/spc-player/blob/master/images/arduino-apu-connected.jpg?raw=true" alt="APU and Arduino connected"/>
-</p>
+![arduino-spc](./images/arduino-apu-connected.jpg?raw=true "APU and Arduino connected")
 
 ## Table of Contents
 
@@ -65,9 +63,7 @@ APU to start executing the song code. After this APU will keep playing the song.
 
 Here is APU pinout looking from the top side:
 
-<p align="center">
-  <img src="https://github.com/Kazhuu/spc-player/blob/master/images/apu-pinout.png?raw=true" alt="APU Pinout"/>
-</p>
+![api-pinout](./images/apu-pinout.png?raw=true "APU Pinout")
 
 Signal and symbol explanations:
 * **~** means an active low signal.
@@ -86,9 +82,7 @@ Signal and symbol explanations:
 
 Connect Arduino to APU according following diagram:
 
-<p align="center">
-  <img src="https://github.com/Kazhuu/spc-player/blob/master/images/schema.png?raw=true" alt="Schema"/>
-</p>
+![scema](./images/schema.png?raw=true "Schema")
 
 ### Uploading Arduino Code
 
