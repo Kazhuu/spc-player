@@ -1,7 +1,7 @@
 import { useState } from "react";
 
 import FileHandler from "./components/FileHandler";
-import SpcInfo from "./components/SpcInfo";
+import SpcList from "./components/SpcList";
 
 import SpcReader from "./SpcReader";
 
@@ -16,10 +16,12 @@ function App() {
 
   return (
     <div>
-      <FileHandler fileCallback={fileCallback} />
-      {Object.entries(spcReaderList).map(([name, spcReader]) => (
-        <SpcInfo key={name} spcReader={spcReader} />
-      ))}
+      <div>
+        <FileHandler fileCallback={fileCallback} />
+      </div>
+      <div>
+        <SpcList spcReaderList={spcReaderList} />
+      </div>
     </div>
   );
 }

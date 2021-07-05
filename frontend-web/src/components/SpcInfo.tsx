@@ -1,11 +1,17 @@
 import SpcReader from "../SpcReader";
 
-function SpcInfo({ spcReader }: { spcReader: SpcReader }) {
+export default function SpcInfo({ spcReader }: { spcReader: SpcReader }) {
+  let length = spcReader.metadata!.length || 0;
+  let game = spcReader.metadata!.game || "";
+  let artist = spcReader.metadata!.artist || "";
+  let comments = spcReader.metadata!.comments || "";
   return (
-    <div>
-      <input value={spcReader.name()} readOnly={true} />
-    </div>
+    <tr>
+      <td>{spcReader.name()}</td>
+      <td>{game}</td>
+      <td>{artist}</td>
+      <td>{comments}</td>
+      <td>{length}</td>
+    </tr>
   );
 }
-
-export default SpcInfo;

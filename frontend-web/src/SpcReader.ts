@@ -54,8 +54,8 @@ export default class SpcReader {
   }
 
   name(): string {
-    if (this.hasID666Metadata && this.metadata!.title) {
-      return this.metadata.title;
+    if (this.hasID666Metadata) {
+      return this.metadata!.title;
     } else {
       return this.filename;
     }
