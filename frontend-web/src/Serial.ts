@@ -40,12 +40,12 @@ export default class Serial {
     });
   }
 
-  public async send(data: BufferSource): Promise<USBOutTransferResult> {
-    return await this.device.transferOut(this.endpointOut, data);
+  public write(data: BufferSource): Promise<USBOutTransferResult> {
+    return this.device.transferOut(this.endpointOut, data);
   }
 
-  public async read(length: number): Promise<USBInTransferResult> {
-    return await this.device.transferIn(this.endpointIn, length);
+  public read(size: number): Promise<USBInTransferResult> {
+    return this.device.transferIn(this.endpointIn, size);
   }
 
   public async disconnect(): Promise<void> {

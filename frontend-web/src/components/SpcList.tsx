@@ -1,11 +1,7 @@
 import SpcInfo from "../components/SpcInfo";
 import SpcReader from "../SpcReader";
 
-export default function SpcList({
-  spcReaderList,
-}: {
-  spcReaderList: [SpcReader];
-}) {
+export default function SpcList({ spcReaderList }: { spcReaderList: {} }) {
   return (
     <table>
       <tr>
@@ -16,7 +12,7 @@ export default function SpcList({
         <th>Length</th>
       </tr>
       {Object.entries(spcReaderList).map(([name, spcReader]) => (
-        <SpcInfo key={name} spcReader={spcReader} />
+        <SpcInfo key={name} spcReader={spcReader as SpcReader} />
       ))}
     </table>
   );
