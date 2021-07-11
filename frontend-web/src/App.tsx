@@ -9,6 +9,7 @@ import Serial from "./Serial";
 
 export default function App() {
   const [spcReaderList, setSpcReaderList] = useState({});
+  let serial: Serial | null = null;
 
   async function fileCallback(file: File) {
     let buffer = await file.arrayBuffer();
@@ -16,18 +17,23 @@ export default function App() {
     setSpcReaderList((state) => ({ [spcReader.name()]: spcReader, ...state }));
   }
 
-  async function serialConnect(serial: Serial) {
+  async function serialConnect(newSerial: Serial) {
     console.log("connect");
-    //console.log(serial);
-    //let result = await serial.write(new TextEncoder().encode("RRRRRRRRRRR"));
-    //console.log(result);
-    let data = await serial.read(64);
-    console.log("aaa");
-    console.log(data);
+    serial = newSerial;
   }
 
   async function serialDisconnect() {
     console.log("disconnect");
+  }
+
+  async function reset() {
+    if (serial) {
+      let result = await serial.write(new TextEncoder().encode("R"));
+      console.log(result);
+      let data = await serial.read(1);
+      console.log("aaa");
+      console.log(new TextDecoder().decode(data.data));
+    }
   }
 
   return (
@@ -38,6 +44,7 @@ export default function App() {
           disconnectCallback={serialDisconnect}
         />
       </div>
+      <button onClick={reset}>Reset</button>
       <div>
         <FileHandler fileCallback={fileCallback} />
       </div>

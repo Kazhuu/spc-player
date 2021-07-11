@@ -6,6 +6,7 @@
 # Vim integration files
 .clang_complete
 .gcc-flags.json
+tags
 
 # Python files
 *.pyc

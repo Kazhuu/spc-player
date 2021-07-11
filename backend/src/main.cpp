@@ -1,3 +1,5 @@
+#include <WebUSB.h>
+
 #include "SpcPlayer.hpp"
 #include "SpcHal.hpp"
 #include "IplRomClient.hpp"
@@ -26,11 +28,13 @@
 
 #define BAUD_RATE 38400
 
+WebUSB WebUSBSerial(0 /* http:// */, "localhost:8080");
+
+#define Serial WebUSBSerial
 
 SpcHal spcHal(READ_PIN, WRITE_PIN, RESET_PIN);
 IplRomClient iplRomClient(spcHal);
 SpcPlayer spcPlayer(iplRomClient);
-
 
 void readPorts() {
     for (uint8_t i = 0; i < 4; ++i) {
@@ -218,12 +222,15 @@ void handleSerialCommand() {
 }
 
 void setup() {
+    while (!Serial) {
+        ;
+    }
     Serial.begin(BAUD_RATE);
     spcHal.setPortPins(PORT_0_PIN, PORT_1_PIN);
     spcHal.setDataPins(DATA_0_PIN, DATA_1_PIN, DATA_2_PIN, DATA_3_PIN, DATA_4_PIN, DATA_5_PIN, DATA_6_PIN, DATA_7_PIN);
-    serialWriteResult(iplRomClient.reset());
 }
 
 void loop() {
     handleSerialCommand();
+    Serial.flush();
 }

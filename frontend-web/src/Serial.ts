@@ -13,7 +13,7 @@ export default class Serial {
     if (this.device.configuration === null) {
       await this.device.selectConfiguration(1);
     }
-    let configurationInterfaces = this.device.configuration!.interfaces;
+    var configurationInterfaces = this.device.configuration!.interfaces;
     configurationInterfaces.forEach((element) => {
       element.alternates.forEach((elementalt) => {
         if (elementalt.interfaceClass === 0xff) {
@@ -46,6 +46,10 @@ export default class Serial {
 
   public read(size: number): Promise<USBInTransferResult> {
     return this.device.transferIn(this.endpointIn, size);
+  }
+
+  public async reset() {
+    return await this.device.reset();
   }
 
   public async disconnect(): Promise<void> {

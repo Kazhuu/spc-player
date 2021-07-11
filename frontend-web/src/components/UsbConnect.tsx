@@ -13,6 +13,7 @@ export default function UsbConnect(props: any) {
         let serial = new Serial(devices[0]);
         try {
           await serial.connect();
+          await serial.reset();
           setStatusMessage("Device connected");
           setDeviceFound(true);
           props.connectCallback(serial);
