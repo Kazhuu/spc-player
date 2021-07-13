@@ -23,7 +23,7 @@ if __name__ == '__main__':
             Uart.reset(serial)
             start_time = timeit.default_timer()
             print('opened port {0}'.format(serial.name))
-            Uart.write_cpu_registers(serial, spc.program_couter, spc.a_register, spc.x_register, spc.y_register, spc.stack_pointer, spc.program_status_word)
+            Uart.write_cpu_registers(serial, spc.program_counter, spc.a_register, spc.x_register, spc.y_register, spc.stack_pointer, spc.program_status_word)
             print('write CPU registers successful')
             Uart.write_dsp_registers(serial, spc.dsp_registers)
             print('write DSP registers successful')

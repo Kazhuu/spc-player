@@ -6,9 +6,9 @@ from exceptions import SpcExpection
 class Uart:
 
     @classmethod
-    def write_cpu_registers(cls, serial, program_couter, a, x, y, stack_pointer, program_status_word):
+    def write_cpu_registers(cls, serial, program_counter, a, x, y, stack_pointer, program_status_word):
         serial.write(b'C');
-        serial.write(program_couter);
+        serial.write(program_counter);
         serial.write(cls.int_to_byte(a));
         serial.write(cls.int_to_byte(x));
         serial.write(cls.int_to_byte(y));
@@ -70,7 +70,7 @@ class Uart:
         return data
 
     @classmethod
-    def write_port(cls, port, value):
+    def write_port(cls, serial, port, value):
         serial.write(b'Q')
         serial.write(cls.int_to_byte(port))
         serial.write(cls.int_to_byte(value))

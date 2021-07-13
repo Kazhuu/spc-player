@@ -30,12 +30,12 @@ export interface IId666 {
 const SPC_HEADER = "SNES-SPC700 Sound File Data v0.30";
 
 export default class SpcReader {
-  public regPC: number;
-  public regA: number;
-  public regX: number;
-  public regY: number;
-  public regPSW: number;
-  public regSP: number;
+  public programCounter: number;
+  public a: number;
+  public x: number;
+  public y: number;
+  public programStatusWord: number;
+  public stackPointer: number;
   public hasID666Metadata: boolean;
   public metadata?: IId666;
   public programData: Uint8Array;
@@ -85,12 +85,12 @@ export default class SpcReader {
 
   private parseSPCInfo(): void {
     this.hasID666Metadata = this.buffer[0x23] === 0x1a;
-    this.regA = this.buffer[0x27];
-    this.regX = this.buffer[0x28];
-    this.regY = this.buffer[0x29];
-    this.regPSW = this.buffer[0x2a];
-    this.regSP = this.buffer[0x2b];
-    this.regPC = new DataView(this.rawBuffer).getUint16(
+    this.a = this.buffer[0x27];
+    this.x = this.buffer[0x28];
+    this.y = this.buffer[0x29];
+    this.programStatusWord = this.buffer[0x2a];
+    this.stackPointer = this.buffer[0x2b];
+    this.programCounter = new DataView(this.rawBuffer).getUint16(
       0x25,
       false /* SPC700 is big-endian */
     );

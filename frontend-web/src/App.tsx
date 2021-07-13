@@ -1,15 +1,16 @@
 import { useState } from "react";
 
-import FileHandler from "./components/FileHandler";
-import SpcList from "./components/SpcList";
-import UsbConnect from "./components/UsbConnect";
+import FileHandler from "components/FileHandler";
+import SpcList from "components/SpcList";
+import UsbConnect from "components/UsbConnect";
 
-import SpcReader from "./SpcReader";
-import Serial from "./Serial";
+import SpcReader from "SpcReader";
+import Serial from "Serial";
+import SpcWriter from "SpcWriter";
 
 export default function App() {
   const [spcReaderList, setSpcReaderList] = useState({});
-  let serial: Serial | null = null;
+  const [serial, setSerial] = useState<Serial | null>(null);
 
   async function fileCallback(file: File) {
     let buffer = await file.arrayBuffer();
@@ -19,20 +20,34 @@ export default function App() {
 
   async function serialConnect(newSerial: Serial) {
     console.log("connect");
-    serial = newSerial;
+    setSerial(newSerial);
   }
 
   async function serialDisconnect() {
     console.log("disconnect");
+    setSerial(null);
   }
 
   async function reset() {
     if (serial) {
-      let result = await serial.write(new TextEncoder().encode("R"));
-      console.log(result);
-      let data = await serial.read(1);
-      console.log("aaa");
-      console.log(new TextDecoder().decode(data.data));
+      let writer = new SpcWriter(serial);
+      await writer.reset();
+    }
+  }
+
+  async function play(spcReader: SpcReader): Promise<void> {
+    if (serial) {
+      let writer = new SpcWriter(serial);
+      await writer.reset();
+      await writer.writeCpuRegisters(
+        spcReader.programCounter,
+        spcReader.a,
+        spcReader.x,
+        spcReader.y,
+        spcReader.stackPointer,
+        spcReader.programStatusWord
+      );
+      console.log("play");
     }
   }
 
@@ -49,7 +64,7 @@ export default function App() {
         <FileHandler fileCallback={fileCallback} />
       </div>
       <div>
-        <SpcList spcReaderList={spcReaderList} />
+        <SpcList spcReaderList={spcReaderList} playCallback={play} />
       </div>
     </div>
   );

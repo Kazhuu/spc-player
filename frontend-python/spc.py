@@ -10,7 +10,7 @@ class Spc:
 
     def _cpu_registers(self, spc_file):
         spc_file.seek(0x25)
-        self.program_couter = spc_file.read(2)
+        self.program_counter = spc_file.read(2)
         self.a_register = spc_file.read(1)
         self.x_register = spc_file.read(1)
         self.y_register = spc_file.read(1)

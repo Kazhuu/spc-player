@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 
-import Serial from "../Serial";
+import Serial from "Serial";
 
 export default function UsbConnect(props: any) {
   const [deviceFound, setDeviceFound] = useState(false);
