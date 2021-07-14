@@ -30,7 +30,8 @@ export interface IId666 {
 const SPC_HEADER = "SNES-SPC700 Sound File Data v0.30";
 
 export default class SpcReader {
-  public programCounter: number;
+  public filename: string;
+  public programCounter: Uint8Array;
   public a: number;
   public x: number;
   public y: number;
@@ -38,17 +39,16 @@ export default class SpcReader {
   public stackPointer: number;
   public hasID666Metadata: boolean;
   public metadata?: IId666;
-  public programData: Uint8Array;
   public dspRegisters: Uint8Array;
-  public iplRam: Uint8Array;
-  public filename: string;
+  public ram: Uint8Array;
+  public firstPageRam: Uint8Array;
+  public secondPageRam: Uint8Array;
+  public restOfTheRam: Uint8Array;
 
   private buffer: Uint8Array;
-  private rawBuffer: ArrayBuffer;
 
   constructor(filename: string, spcFileBuffer: ArrayBuffer) {
     this.filename = filename;
-    this.rawBuffer = spcFileBuffer;
     this.buffer = new Uint8Array(spcFileBuffer);
     this.parse();
   }
@@ -70,9 +70,11 @@ export default class SpcReader {
     if (this.hasID666Metadata) {
       this.parseID666();
     }
-    this.programData = this.buffer.slice(0x100, 0x10100);
     this.dspRegisters = this.buffer.slice(0x10100, 0x10180);
-    this.iplRam = this.buffer.slice(0x101c0, 0x10200);
+    this.ram = this.buffer.slice(0x100, 0x10100); // 65 536 bytes
+    this.firstPageRam = this.ram.slice(0x0, 0x100); // 256 bytes
+    this.secondPageRam = this.buffer.slice(0x0100, 0x0200); // 256 bytes
+    this.restOfTheRam = this.buffer.slice(0x0200, 0xffc0); // 64 960 bytes
   }
 
   private verify(): boolean {
@@ -90,10 +92,7 @@ export default class SpcReader {
     this.y = this.buffer[0x29];
     this.programStatusWord = this.buffer[0x2a];
     this.stackPointer = this.buffer[0x2b];
-    this.programCounter = new DataView(this.rawBuffer).getUint16(
-      0x25,
-      false /* SPC700 is big-endian */
-    );
+    this.programCounter = this.buffer.slice(0x25, 0x25 + 2);
   }
 
   private parseID666(): void {

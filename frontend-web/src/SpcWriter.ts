@@ -12,15 +12,18 @@ export default class SpcWriter {
   }
 
   public async writeCpuRegisters(
-    programCounter: number,
+    programCounter: Uint8Array,
     a: number,
     x: number,
     y: number,
     stackPointer: number,
     programStatusWord: number
   ) {
+    if (programCounter.length !== 2) {
+      return Promise.reject("Parameter programCounter length must be 2");
+    }
     await this.serial.write(this.encode("C"));
-    await this.serial.write(this.numberToByte(programCounter));
+    await this.serial.write(programCounter);
     await this.serial.write(this.numberToByte(a));
     await this.serial.write(this.numberToByte(x));
     await this.serial.write(this.numberToByte(y));
@@ -28,26 +31,76 @@ export default class SpcWriter {
     await this.serial.write(this.numberToByte(programStatusWord));
     let result = await this.serial.read(1);
     if (result.data && this.decode(result.data.buffer) === "1") {
-      throw new Error("writing CPU registers failed");
+      return Promise.reject("Writing CPU registers failed");
     }
   }
 
-  public writeDspRegisters(dspRegisters: Uint8Array) {}
-  public writeRirstPageRam(firstPageRam: Uint8Array) {}
-  public writeSecondPageRam(secondPageRam: Uint8Array) {}
-  public writeRestOfTheRam(restOfTheRam: Uint8Array) {}
+  public async writeDspRegisters(dspRegisters: Uint8Array) {
+    if (dspRegisters.length !== 128) {
+      return Promise.reject("DSP requires 128 register values");
+    }
+    await this.serial.write(this.encode("D"));
+    await this.serial.write(dspRegisters);
+    let result = await this.serial.read(1);
+    if (result.data && this.decode(result.data.buffer) === "1") {
+      return Promise.reject("Writing DSP registers failed");
+    }
+  }
+
+  public async writeFirstPageRam(firstPageRam: Uint8Array) {
+    if (firstPageRam.length !== 256) {
+      return Promise.reject("First page of the SPC ram requires 256 bytes");
+    }
+    await this.serial.write(this.encode("0"));
+    await this.serial.write(firstPageRam);
+    let result = await this.serial.read(1);
+    if (result.data && this.decode(result.data.buffer) === "1") {
+      return Promise.reject("Writing first page ram failed");
+    }
+  }
+
+  public async writeSecondPageRam(secondPageRam: Uint8Array) {
+    if (secondPageRam.length !== 256) {
+      return Promise.reject("Second page of the SPC ram requires 256 bytes");
+    }
+    await this.serial.write(this.encode("1"));
+    await this.serial.write(secondPageRam);
+    let result = await this.serial.read(1);
+    if (result.data && this.decode(result.data.buffer) === "1") {
+      return Promise.reject("Writing second page ram failed");
+    }
+  }
+
+  public async writeRestOfTheRam(restOfTheRam: Uint8Array) {
+    if (restOfTheRam.length !== 64960) {
+      return Promise.reject("Rest of the SPC ram requires 64960 bytes");
+    }
+    await this.serial.write(this.encode("2"));
+    //restOfTheRam.forEach(async (value: number) => {
+    await this.serial.write(restOfTheRam);
+    //console.log('write');
+    //});
+    let result = await this.serial.read(1);
+    if (result.data && this.decode(result.data.buffer) === "1") {
+      return Promise.reject("Writing rest of the ram failed");
+    }
+  }
+
   public readPorts(): Uint8Array {
     return new Uint8Array();
   }
+
   public writePort(port: number, value: number) {}
+
   public start() {}
+
   public async reset() {
     await this.serial.write(this.encode("R"));
     let result = await this.serial.read(1);
     if (result.data && this.decode(result.data.buffer) === "1") {
       console.log("reset");
     } else {
-      throw new Error("SPC reset timed out");
+      return Promise.reject("SPC reset timed out");
     }
   }
 
@@ -63,13 +116,6 @@ export default class SpcWriter {
     let arr = new ArrayBuffer(1);
     let view = new DataView(arr);
     view.setUint8(0, number);
-    return arr;
-  }
-
-  private numberToShort(number: number) {
-    let arr = new ArrayBuffer(2);
-    let view = new DataView(arr);
-    view.setUint16(0, number);
     return arr;
   }
 }

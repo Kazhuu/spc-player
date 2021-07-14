@@ -17,9 +17,9 @@ export default function SpcInfo({
   let comments = spcReader.metadata!.comments || "";
 
   async function play() {
-    setDisabledPlay(true);
+    //setDisabledPlay(true);
     await playCallback(spcReader);
-    setDisabledPlay(false);
+    //setDisabledPlay(false);
   }
   return (
     <tr>
