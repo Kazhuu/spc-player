@@ -38,7 +38,7 @@ export default function App() {
   async function play(spcReader: SpcReader): Promise<void> {
     if (serial) {
       let writer = new SpcWriter(serial);
-      //await writer.reset();
+      await writer.reset();
       await writer.writeCpuRegisters(
         spcReader.programCounter,
         spcReader.a,
@@ -50,8 +50,9 @@ export default function App() {
       await writer.writeDspRegisters(spcReader.dspRegisters);
       await writer.writeFirstPageRam(spcReader.firstPageRam);
       await writer.writeSecondPageRam(spcReader.secondPageRam);
-      // TODO: Transferring large amounts of bytes will hangup the system.
-      //await writer.writeRestOfTheRam(spcReader.restOfTheRam);
+      await writer.writeRestOfTheRam(spcReader.restOfTheRam);
+      await writer.start();
+      console.log(await writer.readBootCode());
       console.log("play");
     }
   }

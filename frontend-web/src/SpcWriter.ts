@@ -30,7 +30,7 @@ export default class SpcWriter {
     await this.serial.write(this.numberToByte(stackPointer));
     await this.serial.write(this.numberToByte(programStatusWord));
     let result = await this.serial.read(1);
-    if (result.data && this.decode(result.data.buffer) === "1") {
+    if (result.data && this.decode(result.data.buffer) !== "1") {
       return Promise.reject("Writing CPU registers failed");
     }
   }
@@ -42,7 +42,7 @@ export default class SpcWriter {
     await this.serial.write(this.encode("D"));
     await this.serial.write(dspRegisters);
     let result = await this.serial.read(1);
-    if (result.data && this.decode(result.data.buffer) === "1") {
+    if (result.data && this.decode(result.data.buffer) !== "1") {
       return Promise.reject("Writing DSP registers failed");
     }
   }
@@ -54,7 +54,7 @@ export default class SpcWriter {
     await this.serial.write(this.encode("0"));
     await this.serial.write(firstPageRam);
     let result = await this.serial.read(1);
-    if (result.data && this.decode(result.data.buffer) === "1") {
+    if (result.data && this.decode(result.data.buffer) !== "1") {
       return Promise.reject("Writing first page ram failed");
     }
   }
@@ -66,7 +66,7 @@ export default class SpcWriter {
     await this.serial.write(this.encode("1"));
     await this.serial.write(secondPageRam);
     let result = await this.serial.read(1);
-    if (result.data && this.decode(result.data.buffer) === "1") {
+    if (result.data && this.decode(result.data.buffer) !== "1") {
       return Promise.reject("Writing second page ram failed");
     }
   }
@@ -76,14 +76,22 @@ export default class SpcWriter {
       return Promise.reject("Rest of the SPC ram requires 64960 bytes");
     }
     await this.serial.write(this.encode("2"));
-    //restOfTheRam.forEach(async (value: number) => {
     await this.serial.write(restOfTheRam);
-    //console.log('write');
-    //});
     let result = await this.serial.read(1);
-    if (result.data && this.decode(result.data.buffer) === "1") {
+    if (result.data && this.decode(result.data.buffer) !== "1") {
       return Promise.reject("Writing rest of the ram failed");
     }
+  }
+
+  public async readBootCode() {
+    await this.serial.write(this.encode("B"));
+    let result = await this.serial.read(1);
+    console.log(result);
+    if (result.status !== "babble") {
+      return Promise.reject("Bootcode reading failed");
+    }
+    let bootCodeSize = this.byteToNumber(result.data!.buffer);
+    return await this.serial.read(bootCodeSize);
   }
 
   public readPorts(): Uint8Array {
@@ -92,15 +100,21 @@ export default class SpcWriter {
 
   public writePort(port: number, value: number) {}
 
-  public start() {}
+  public async start() {
+    await this.serial.write(this.encode("S"));
+    let result = await this.serial.read(1);
+    if (result.data && this.decode(result.data.buffer) !== "1") {
+      return Promise.reject("Staring SPC execution failed");
+    }
+  }
 
   public async reset() {
     await this.serial.write(this.encode("R"));
     let result = await this.serial.read(1);
-    if (result.data && this.decode(result.data.buffer) === "1") {
-      console.log("reset");
-    } else {
+    if (result.data && this.decode(result.data.buffer) !== "1") {
       return Promise.reject("SPC reset timed out");
+    } else {
+      console.log("reset");
     }
   }
 
@@ -117,5 +131,10 @@ export default class SpcWriter {
     let view = new DataView(arr);
     view.setUint8(0, number);
     return arr;
+  }
+
+  private byteToNumber(byte: ArrayBuffer): number {
+    let view = new DataView(byte);
+    return view.getUint8(0);
   }
 }
