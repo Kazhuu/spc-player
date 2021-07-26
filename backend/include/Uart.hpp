@@ -5,7 +5,7 @@
 #include "Arduino.h"
 #include "Serial.hpp"
 
-#define READ_TIMEOUT_MS 5000
+#define READ_TIMEOUT_MS 200
 
 class Uart {
 public:

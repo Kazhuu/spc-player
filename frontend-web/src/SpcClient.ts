@@ -75,11 +75,19 @@ export default class SpcClient {
     if (restOfTheRam.length !== 64960) {
       return Promise.reject("Rest of the SPC ram requires 64960 bytes");
     }
+    let packetSize = 232;
+    let packetCount = restOfTheRam.length / packetSize;
+    console.log("packet count: " + packetCount);
+
     await this.serial.write(this.encode("2"));
-    await this.serial.write(restOfTheRam);
-    let result = await this.serial.read(1);
-    if (result.data && this.decode(result.data.buffer) !== "1") {
-      return Promise.reject("Writing rest of the ram failed");
+    for (let packetIndex = 0; packetIndex < packetCount; ++packetIndex) {
+      let byteIndexStart = packetIndex * packetSize;
+      let byteIndexEnd = byteIndexStart + packetSize;
+      await this.serial.write(restOfTheRam.slice(byteIndexStart, byteIndexEnd));
+      let readResult = await this.serial.read(1);
+      if (readResult.data && this.decode(readResult.data.buffer) !== "1") {
+        return Promise.reject("Ram packet " + packetIndex + " transfer failed");
+      }
     }
   }
 

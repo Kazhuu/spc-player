@@ -108,9 +108,9 @@ bool SpcPlayer::writeFirstPageRam(uint8_t* firstPageRam) {
     // This byte boot code will expect from port 3.
     bootCode[31] = mPort3Value;
     // Store original timer values.
-    bootCode[7] = firstPageRam[0x00FA];
+    bootCode[7] = firstPageRam[0x00FC];
     bootCode[10] = firstPageRam[0x00FB];
-    bootCode[13] = firstPageRam[0x00FC];
+    bootCode[13] = firstPageRam[0x00FA];
     return true;
 }
 
@@ -144,22 +144,28 @@ bool SpcPlayer::writeSecondPageRam(uint8_t* secondPageRam) {
     return true;
 }
 
-uint32_t SpcPlayer::writeRamByte(uint8_t byte) {
-    if (mRestOfRamWriteCount > 0xFFC0 - 0x200) {
-        return 0xFFC0 - 0x200;
-    }
-    if (!mRestOfRamWriteStarted) {
-        bool result = mIplRomClient.setAddress(0x0200);
+bool SpcPlayer::writeRamPacket(uint8_t* packet, uint32_t size) {
+    bool result = true;
+    for (uint32_t i = 0; i < size; ++i) {
+        if (!mRestOfRamWriteStarted) {
+            bool result = mIplRomClient.setAddress(0x0200);
+            if (!result) {
+                mRestOfRamWriteCount = 0;
+                result = false;
+                break;
+            }
+            mRestOfRamWriteCount = 0;
+            mRestOfRamWriteStarted = true;
+        }
+        result &= mIplRomClient.write(packet[i]);
         if (!result) {
             mRestOfRamWriteCount = 0;
-            return 0;
+            mRestOfRamWriteStarted = false;
+            result = false;
         }
-        mRestOfRamWriteCount = 0;
-        mRestOfRamWriteStarted = true;
+        mRestOfRamWriteCount++;
     }
-    mIplRomClient.writeWithouAcknowledge(byte);
-    mRestOfRamWriteCount++;
-    return mRestOfRamWriteCount;
+    return result;
 }
 
 void SpcPlayer::resetRamWrite() {

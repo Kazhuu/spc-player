@@ -11,7 +11,7 @@ public:
     bool writeDspRegisters(uint8_t* dspRegisters);
     bool writeFirstPageRam(uint8_t* firstPageRam);
     bool writeSecondPageRam(uint8_t* secondPageRam);
-    uint32_t writeRamByte(uint8_t byte);
+    bool writeRamPacket(uint8_t* byte, uint32_t size);
     void resetRamWrite();
     bool start(uint16_t bootCodeAddress=0xFF85);
     uint8_t* getBootCode(uint32_t& size);

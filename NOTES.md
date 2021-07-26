@@ -68,3 +68,68 @@ Planned UART API calls. Every UART code return 1 on success and 0 on error.
 - command to write single port
 - command to read all ports
 - command to reset SPC
+
+Timers are used in some song for tempo of the song. This is for example the case
+in final fantasy 6 Spinach Rag song in opera house. Making the timer bigger in
+backend code makes song play slower. DKC2 Crocodile Cacophony for example
+doesn't seem to use timers, or the song code overwrites them later.
+
+WebUSB bootcode dump for crocodile cacophony from DKC2
+"8f", "9b", "0",
+"8f", "19", "1",
+"8f", "64", "fc",
+"8f", "c8", "fb",
+"8f", "ff", "fa",
+"8f", "1", "f1",
+"cd", "23",
+"d8", "f5",
+
+"e4", "f4",
+"68", "1",
+"d0", "fa",
+
+"e4", "f7",
+"68", "4",
+"d0", "fa",
+
+"8f", "6c", "f2",
+"8f", "0", "f3",
+"8f", "4c", "f2",
+"8f", "1", "f3",
+"8f", "4c", "f2",
+"cd", "f8",
+"bd",
+"e8", "1",
+"cd", "0",
+"8d", "0",
+"7f"
+
+Python bootcode:
+8f9b00
+8f1901
+8f64fc
+8fc8fb
+8ffffa
+8f01f1
+cd23
+d8f5
+
+e4f4
+6801
+d0fa
+
+e4f7
+6804
+d0fa
+
+8f6cf2
+8f00f3
+8f4cf2
+8f01f3
+8f4cf2
+cdf8
+bd
+e801
+cd00
+8d00
+7f

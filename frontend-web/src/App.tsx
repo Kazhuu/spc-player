@@ -51,7 +51,6 @@ export default function App() {
       await spcClient.writeSecondPageRam(spcReader.secondPageRam);
       await spcClient.writeRestOfTheRam(spcReader.restOfTheRam);
       await spcClient.start();
-      console.log(await spcClient.readBootCode());
       console.log("play");
     }
   }
@@ -67,6 +66,11 @@ export default function App() {
     if (spcClient) {
       let result = await spcClient.readBootCode();
       console.log(result);
+      let bytes: any = [];
+      result.forEach((byte) => {
+        bytes.push(byte.toString(16));
+      });
+      console.log(bytes);
     }
   }
 

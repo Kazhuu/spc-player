@@ -73,8 +73,8 @@ export default class SpcReader {
     this.dspRegisters = this.buffer.slice(0x10100, 0x10180);
     this.ram = this.buffer.slice(0x100, 0x10100); // 65 536 bytes
     this.firstPageRam = this.ram.slice(0x0, 0x100); // 256 bytes
-    this.secondPageRam = this.buffer.slice(0x0100, 0x0200); // 256 bytes
-    this.restOfTheRam = this.buffer.slice(0x0200, 0xffc0); // 64 960 bytes
+    this.secondPageRam = this.ram.slice(0x0100, 0x0200); // 256 bytes
+    this.restOfTheRam = this.ram.slice(0x0200, 0xffc0); // 64 960 bytes
   }
 
   private verify(): boolean {

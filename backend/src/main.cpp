@@ -35,6 +35,8 @@
 #define SERIAL_WRITE_SUCCESS '1'
 #define SERIAL_WRITE_ERROR '0'
 
+#define RAM_PACKET_SIZE 232
+
 SpcHal spcHal(READ_PIN, WRITE_PIN, RESET_PIN);
 IplRomClient iplRomClient(spcHal);
 SpcPlayer spcPlayer(iplRomClient);
@@ -57,7 +59,7 @@ void handleSerialCommand() {
     if (serial.available()) {
         char result = serial.read();
         bool uartReadResult;
-        uint32_t ramWrittenAmount = 0;
+        bool packetResult;
         uint8_t* bootCodePointer;
         uint32_t bootCodeSize;
         uint8_t value;
@@ -163,25 +165,35 @@ void handleSerialCommand() {
                 }
                 break;
 
-            // Write rest of the ram bytes after page 1. Needs to followed by 64960
-            // bytes, will only then be successful.
+            // Write rest of the ram bytes after page 1. Rest of the ram is
+            // 64960 bytes long from addresses 0xFFC0 - 0x200. Transfer this
+            // amount of bytes in 280 packets and each 232 (RAM_PACKET_SIZE)
+            // bytes in length. In other words (0xFFC0 - 0x200) / 232 = 280.
+            // Between each packet transfer success or error result.
             case '2':
-                for (uint32_t i = 0; i < 0xFFC0 - 0x200; ++i) {
-                    value = Uart::readByte(serial, &uartReadResult);
+                for (uint32_t i = 0; i < (0xFFC0 - 0x200) / RAM_PACKET_SIZE; ++i) {
+                    for (uint32_t j = 0; j < RAM_PACKET_SIZE; ++j) {
+                        page[j] = Uart::readByte(serial, &uartReadResult);
+                        if (!uartReadResult) {
+                            break;
+                        }
+                    }
                     if (!uartReadResult) {
-                        spcPlayer.resetRamWrite();
                         serial.write(SERIAL_WRITE_ERROR);
+                        spcPlayer.resetRamWrite();
                         break;
                     }
-                    ramWrittenAmount = spcPlayer.writeRamByte(value);
-                    if (ramWrittenAmount == 0) {
-                        spcPlayer.resetRamWrite();
+                    packetResult = spcPlayer.writeRamPacket(page, RAM_PACKET_SIZE);
+                    if (!packetResult) {
                         serial.write(SERIAL_WRITE_ERROR);
+                        spcPlayer.resetRamWrite();
                         break;
+                    } else {
+                        serial.write(SERIAL_WRITE_SUCCESS);
                     }
-                }
-                if (ramWrittenAmount == 0xFFC0 - 0x200) {
-                    serial.write(SERIAL_WRITE_SUCCESS);
+                    // Flush here with WebUSB makes each iteration different
+                    // transfer packet.
+                    serial.flush();
                 }
                 break;
 
@@ -216,7 +228,7 @@ void handleSerialCommand() {
             case 'B':
                 bootCodePointer = spcPlayer.getBootCode(bootCodeSize);
                 serial.write(bootCodeSize);
-                // Flush here with webusb makes the bootcode size and bootcode
+                // Flush here with WebUSB makes the bootcode size and bootcode
                 // as separate packets.
                 serial.flush();
                 serial.write(bootCodePointer, bootCodeSize);

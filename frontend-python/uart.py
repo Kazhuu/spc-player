@@ -51,15 +51,20 @@ class Uart:
     @classmethod
     def write_rest_of_the_ram(cls, serial, rest_of_the_ram):
         serial.write(b'2')
-        for index, value in enumerate(rest_of_the_ram):
-            sys.stdout.write('\r%d%%' % ((index + 1) / len(rest_of_the_ram) * 100))
+        packet_size = 232
+        packet_count = int(len(rest_of_the_ram) / packet_size)
+        for i in range(packet_count):
+            packet_index_start = i * packet_size
+            packet_index_end = packet_index_start + packet_size
+            for value in rest_of_the_ram[packet_index_start:packet_index_end]:
+                data = cls.int_to_byte(value)
+                serial.write(data)
+            result = serial.read()
+            if result != b'1':
+                raise SpcExpection('writing ram packet {0} failed'.format(i))
+            sys.stdout.write('\r%d%%' % ((i + 1) / packet_count * 100))
             sys.stdout.flush()
-            data = cls.int_to_byte(value)
-            serial.write(data)
-        sys.stdout.write('\n')
-        result = serial.read()
-        if result != b'1':
-            raise SpcExpection('writing rest of the ram failed')
+            sys.stdout.write('\n')
 
     @classmethod
     def read_ports(cls, serial):
