@@ -215,7 +215,10 @@ void handleSerialCommand() {
             // followed by boot code amount of size.
             case 'B':
                 bootCodePointer = spcPlayer.getBootCode(bootCodeSize);
-                serial.write((uint8_t)bootCodeSize);
+                serial.write(bootCodeSize);
+                // Flush here with webusb makes the bootcode size and bootcode
+                // as separate packets.
+                serial.flush();
                 serial.write(bootCodePointer, bootCodeSize);
                 break;
         }

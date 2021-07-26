@@ -6,11 +6,11 @@ import UsbConnect from "components/UsbConnect";
 
 import SpcReader from "SpcReader";
 import Serial from "Serial";
-import SpcWriter from "SpcWriter";
+import SpcClient from "SpcClient";
 
 export default function App() {
   const [spcReaderList, setSpcReaderList] = useState({});
-  const [serial, setSerial] = useState<Serial | null>(null);
+  const [spcClient, setSpcClient] = useState<SpcClient | null>(null);
 
   async function fileCallback(file: File) {
     let buffer = await file.arrayBuffer();
@@ -20,26 +20,25 @@ export default function App() {
 
   async function serialConnect(newSerial: Serial) {
     console.log("connect");
-    setSerial(newSerial);
+    setSpcClient(new SpcClient(newSerial));
   }
 
   async function serialDisconnect() {
     console.log("disconnect");
-    setSerial(null);
+    setSpcClient(null);
   }
 
   async function reset() {
-    if (serial) {
-      let writer = new SpcWriter(serial);
-      await writer.reset();
+    if (spcClient) {
+      await spcClient.reset();
+      console.log("reset");
     }
   }
 
   async function play(spcReader: SpcReader): Promise<void> {
-    if (serial) {
-      let writer = new SpcWriter(serial);
-      await writer.reset();
-      await writer.writeCpuRegisters(
+    if (spcClient) {
+      await spcClient.reset();
+      await spcClient.writeCpuRegisters(
         spcReader.programCounter,
         spcReader.a,
         spcReader.x,
@@ -47,13 +46,27 @@ export default function App() {
         spcReader.stackPointer,
         spcReader.programStatusWord
       );
-      await writer.writeDspRegisters(spcReader.dspRegisters);
-      await writer.writeFirstPageRam(spcReader.firstPageRam);
-      await writer.writeSecondPageRam(spcReader.secondPageRam);
-      await writer.writeRestOfTheRam(spcReader.restOfTheRam);
-      await writer.start();
-      console.log(await writer.readBootCode());
+      await spcClient.writeDspRegisters(spcReader.dspRegisters);
+      await spcClient.writeFirstPageRam(spcReader.firstPageRam);
+      await spcClient.writeSecondPageRam(spcReader.secondPageRam);
+      await spcClient.writeRestOfTheRam(spcReader.restOfTheRam);
+      await spcClient.start();
+      console.log(await spcClient.readBootCode());
       console.log("play");
+    }
+  }
+
+  async function readPorts() {
+    if (spcClient) {
+      let result = await spcClient.readPorts();
+      console.log(result);
+    }
+  }
+
+  async function readBootcode() {
+    if (spcClient) {
+      let result = await spcClient.readBootCode();
+      console.log(result);
     }
   }
 
@@ -66,6 +79,8 @@ export default function App() {
         />
       </div>
       <button onClick={reset}>Reset</button>
+      <button onClick={readPorts}>Read Ports</button>
+      <button onClick={readBootcode}>Read Bootcode</button>
       <div>
         <FileHandler fileCallback={fileCallback} />
       </div>

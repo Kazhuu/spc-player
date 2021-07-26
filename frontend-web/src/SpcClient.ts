@@ -1,6 +1,6 @@
 import Serial from "Serial";
 
-export default class SpcWriter {
+export default class SpcClient {
   private serial: Serial;
   private encoder: TextEncoder;
   private decoder: TextDecoder;
@@ -83,19 +83,27 @@ export default class SpcWriter {
     }
   }
 
-  public async readBootCode() {
+  public async readBootCode(): Promise<Uint8Array> {
     await this.serial.write(this.encode("B"));
     let result = await this.serial.read(1);
-    console.log(result);
-    if (result.status !== "babble") {
-      return Promise.reject("Bootcode reading failed");
+    if (result.status !== "ok") {
+      return Promise.reject("Reading bootcode size failed");
     }
     let bootCodeSize = this.byteToNumber(result.data!.buffer);
-    return await this.serial.read(bootCodeSize);
+    let bootcode = await this.serial.read(bootCodeSize);
+    if (result.status !== "ok") {
+      return Promise.reject("Reading bootcode failed");
+    }
+    return new Uint8Array(bootcode.data!.buffer);
   }
 
-  public readPorts(): Uint8Array {
-    return new Uint8Array();
+  public async readPorts(): Promise<Uint8Array> {
+    await this.serial.write(this.encode("Q"));
+    let result = await this.serial.read(4);
+    if (result.status !== "ok") {
+      return Promise.reject("Reading ports failed");
+    }
+    return new Uint8Array(result.data!.buffer);
   }
 
   public writePort(port: number, value: number) {}
@@ -113,8 +121,6 @@ export default class SpcWriter {
     let result = await this.serial.read(1);
     if (result.data && this.decode(result.data.buffer) !== "1") {
       return Promise.reject("SPC reset timed out");
-    } else {
-      console.log("reset");
     }
   }
 
