@@ -61,6 +61,7 @@ bool IplRomClient::write(uint8_t value) {
     return true;
 }
 
+// TODO: Remove this if not needed.
 void IplRomClient::writeWithouAcknowledge(uint8_t value) {
     mSpcHal.write(1, value);
     mSpcHal.write(0, mWriteCounter);

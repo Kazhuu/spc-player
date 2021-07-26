@@ -35,7 +35,7 @@
 #define SERIAL_WRITE_SUCCESS '1'
 #define SERIAL_WRITE_ERROR '0'
 
-#define RAM_PACKET_SIZE 232
+#define RAM_PACKET_SIZE 2030
 
 SpcHal spcHal(READ_PIN, WRITE_PIN, RESET_PIN);
 IplRomClient iplRomClient(spcHal);
@@ -67,6 +67,7 @@ void handleSerialCommand() {
         uint16_t programCounter;
         uint8_t aRegister, xRegister, yRegister, stackPointer, cpuFlags;
         uint8_t page[256];
+        uint8_t ramPacket[RAM_PACKET_SIZE];
 
         switch (result) {
             case 'R': // Reset SPC.
@@ -172,21 +173,23 @@ void handleSerialCommand() {
             // Between each packet transfer success or error result.
             case '2':
                 for (uint32_t i = 0; i < (0xFFC0 - 0x200) / RAM_PACKET_SIZE; ++i) {
+                    uartReadResult = false;
                     for (uint32_t j = 0; j < RAM_PACKET_SIZE; ++j) {
-                        page[j] = Uart::readByte(serial, &uartReadResult);
+                        ramPacket[j] = Uart::readByte(serial, &uartReadResult);
                         if (!uartReadResult) {
                             break;
                         }
                     }
                     if (!uartReadResult) {
-                        serial.write(SERIAL_WRITE_ERROR);
                         spcPlayer.resetRamWrite();
+                        serial.write(SERIAL_WRITE_ERROR);
                         break;
                     }
-                    packetResult = spcPlayer.writeRamPacket(page, RAM_PACKET_SIZE);
+                    packetResult = spcPlayer.writeRamPacket(ramPacket, RAM_PACKET_SIZE);
+                    //packetResult = true;
                     if (!packetResult) {
-                        serial.write(SERIAL_WRITE_ERROR);
                         spcPlayer.resetRamWrite();
+                        serial.write(SERIAL_WRITE_ERROR);
                         break;
                     } else {
                         serial.write(SERIAL_WRITE_SUCCESS);
@@ -235,6 +238,7 @@ void handleSerialCommand() {
                 break;
         }
     }
+    serial.flush();
 }
 
 void setup() {
@@ -248,5 +252,4 @@ void setup() {
 
 void loop() {
     handleSerialCommand();
-    serial.flush();
 }

@@ -1,5 +1,7 @@
 import Serial from "Serial";
 
+const RAM_PACKET_SIZE = 2030;
+
 export default class SpcClient {
   private serial: Serial;
   private encoder: TextEncoder;
@@ -75,14 +77,13 @@ export default class SpcClient {
     if (restOfTheRam.length !== 64960) {
       return Promise.reject("Rest of the SPC ram requires 64960 bytes");
     }
-    let packetSize = 232;
-    let packetCount = restOfTheRam.length / packetSize;
+    let packetCount = restOfTheRam.length / RAM_PACKET_SIZE;
     console.log("packet count: " + packetCount);
 
     await this.serial.write(this.encode("2"));
     for (let packetIndex = 0; packetIndex < packetCount; ++packetIndex) {
-      let byteIndexStart = packetIndex * packetSize;
-      let byteIndexEnd = byteIndexStart + packetSize;
+      let byteIndexStart = packetIndex * RAM_PACKET_SIZE;
+      let byteIndexEnd = byteIndexStart + RAM_PACKET_SIZE;
       await this.serial.write(restOfTheRam.slice(byteIndexStart, byteIndexEnd));
       let readResult = await this.serial.read(1);
       if (readResult.data && this.decode(readResult.data.buffer) !== "1") {

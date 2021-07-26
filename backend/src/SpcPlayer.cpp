@@ -144,6 +144,25 @@ bool SpcPlayer::writeSecondPageRam(uint8_t* secondPageRam) {
     return true;
 }
 
+// TODO: Remove this if not needed.
+uint32_t SpcPlayer::writeRamByte(uint8_t byte) {
+    if (mRestOfRamWriteCount > 0xFFC0 - 0x200) {
+        return 0xFFC0 - 0x200;
+    }
+    if (!mRestOfRamWriteStarted) {
+        bool result = mIplRomClient.setAddress(0x0200);
+        if (!result) {
+            mRestOfRamWriteCount = 0;
+            return 0;
+        }
+        mRestOfRamWriteCount = 0;
+        mRestOfRamWriteStarted = true;
+    }
+    mIplRomClient.writeWithouAcknowledge(byte);
+    mRestOfRamWriteCount++;
+    return mRestOfRamWriteCount;
+}
+
 bool SpcPlayer::writeRamPacket(uint8_t* packet, uint32_t size) {
     bool result = true;
     for (uint32_t i = 0; i < size; ++i) {
