@@ -209,6 +209,9 @@ bool SpcPlayer::start(uint16_t bootCodeAddress) {
         return false;
     }
     SpcHal& spcHal = mIplRomClient.getSpcHal();
+    for (int i = 0; i < 100; ++i) {
+        __asm__ __volatile__("nop");
+    }
     uint8_t acknowledge = spcHal.read(1);
     if (acknowledge != 0x23) {
         mIplRomClient.reset();

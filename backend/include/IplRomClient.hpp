@@ -6,7 +6,7 @@
 
 class IplRomClient {
 public:
-    IplRomClient(SpcHal& spcHal, uint32_t timeoutValue=500);
+    IplRomClient(SpcHal& spcHal);
     SpcHal& getSpcHal();
     bool reset();
     bool setAddress(uint16_t address);
@@ -21,16 +21,16 @@ private:
      *
      * @param port Port to read from 0 to 4.
      * @param expectedValue Expected value from SPC.
+     * @param timeoutCounter Loop counter to wait for the input.
      *
      * @return Return true on successful read of expected value or false if value is not
      * received before timeout.
      */
-    bool waitForInput(uint8_t port, uint8_t expectedValue);
+    bool waitForInput(uint8_t port, uint8_t expectedValue, uint32_t timeoutCounter);
 
     SpcHal& mSpcHal;
     bool mFirstTransfer;
     uint8_t mWriteCounter;
-    uint32_t mTimeoutValue;
 };
 
 #endif

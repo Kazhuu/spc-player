@@ -13,23 +13,6 @@
     #define serial Serial
 #endif
 
-#define PORT_0_PIN 8
-#define PORT_1_PIN 9
-
-#define READ_PIN 10
-#define WRITE_PIN 11
-
-#define DATA_0_PIN 12
-#define DATA_1_PIN 13
-#define DATA_2_PIN 2
-#define DATA_3_PIN 3
-#define DATA_4_PIN 4
-#define DATA_5_PIN 5
-#define DATA_6_PIN 6
-#define DATA_7_PIN 7
-
-#define RESET_PIN A0
-
 #define BAUD_RATE 38400
 
 #define SERIAL_WRITE_SUCCESS '1'
@@ -37,7 +20,7 @@
 
 #define RAM_PACKET_SIZE 2030
 
-SpcHal spcHal(READ_PIN, WRITE_PIN, RESET_PIN);
+SpcHal spcHal;
 IplRomClient iplRomClient(spcHal);
 SpcPlayer spcPlayer(iplRomClient);
 
@@ -166,6 +149,7 @@ void handleSerialCommand() {
                 }
                 break;
 
+            // TODO: Fix comment when done.
             // Write rest of the ram bytes after page 1. Rest of the ram is
             // 64960 bytes long from addresses 0xFFC0 - 0x200. Transfer this
             // amount of bytes in 280 packets and each 232 (RAM_PACKET_SIZE)
@@ -246,8 +230,6 @@ void setup() {
         ;
     }
     serial.begin(BAUD_RATE);
-    spcHal.setPortPins(PORT_0_PIN, PORT_1_PIN);
-    spcHal.setDataPins(DATA_0_PIN, DATA_1_PIN, DATA_2_PIN, DATA_3_PIN, DATA_4_PIN, DATA_5_PIN, DATA_6_PIN, DATA_7_PIN);
 }
 
 void loop() {
