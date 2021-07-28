@@ -1,8 +1,9 @@
 # SPC Player
 
-Arduino UNO based SNES SPC file music player with the original Audio Processing Unit
-(APU).
+Play original SNES audio files with original hardware with Arduino and your
+browser.
 
+TODO: Update picture.
 ![arduino-spc](./images/arduino-apu-connected.jpg?raw=true "APU and Arduino connected")
 
 ## Table of Contents
@@ -16,29 +17,20 @@ Arduino UNO based SNES SPC file music player with the original Audio Processing 
   * [Uploading Arduino Code](#uploading-arduino-code)
   * [Uploading Song With Python](#uploading-song-with-python)
 * [Resources](#resources)
-* [Things to Do](#things-to-do)
 
 <!-- vim-markdown-toc -->
 
 ## About
 
-This project is heavily based on these two projects:
-* https://github.com/emukidid/SNES_APU_SD and
-* https://www.caitsith2.com/snes/apu.htm.
+TODO:
+Arduino based SNES SPC file music player with the original Audio Processing Unit
+(APU).
 
-This project is a work in progress. Works on some DKC2 songs if you want to
-test. Tested and working songs include Stickerbrush Symphony and Crocodile
-Cacophony. These two songs are included in the repository already.  Other
-original SPC songs can be downloaded from
+This project is heavily based on this project
+https://www.caitsith2.com/snes/apu.htm. Which can also be found from github:
+https://github.com/emukidid/SNES_APU_SD.
+
 [Zophar's](https://www.zophar.net/music) website.
-
-So what does this project provide? What other projects are lacking in my opinion
-is a good documentation. That is the gap that I want to fill.  Thus this project
-code does not aim for the SPC upload speed, instead it aims for the readability
-and understandability the code. For instance pin writings and readings are done
-with `digitalWrite()` and `digitalRead()` instead of using the port registers
-directly. This makes it easier for the reader to understand how APU parallel bus
-works for example.
 
 Project is develop on Linux machine and not tested on Windows. If someone finds
 something to fix please create an issue about it. Any kind of contribution is
@@ -86,12 +78,12 @@ Connect Arduino to APU according following diagram:
 
 ### Uploading Arduino Code
 
-Arduino backend code uses [PlatformIO CLI](https://platformio.org/) tool for
-managing the project and its dependencies instead of Arduino IDE. So to compile
-and upload the code you need to download PlatformIO and build the project using
-it. First download and install it from aforementioned website. Both IDE and CLI
-are fine. Generally I prefer CLI over IDE, so the following is also written
-using it.
+Arduino based backend code uses [PlatformIO CLI](https://platformio.org/) tool
+for managing the project and its dependencies instead of Arduino IDE. So to
+compile and upload the code you need to download PlatformIO and build the
+project using it. First download and install it from aforementioned website.
+Installing either IDE or CLI is fine. Generally I prefer CLI over IDE, so the
+following instructions are written with CLI.
 
 After installing PlatformIO go to backend folder and simply run:
 ```
@@ -105,9 +97,9 @@ and working correctly by running following command in the backend folder:
 ```
 pio run --target monitor
 ```
-This will open serial monitor. Arduino code should print `1` on the serial if
-it's able to reset the APU successfully and `0` when it fails. In that case
-check your connections and try again.
+This will open serial monitor. Press `R` to send R character. Arduino should
+respond with `1` if it's able to reset the APU successfully and `0` when it
+fails. In that case check your connections and try again.
 
 ### Uploading Song With Python
 
@@ -118,22 +110,25 @@ command. Remember to use pip3 if you are using Debian based system like Ubuntu.
 pip install pyserial
 ```
 
-I've included two Donkey Kong Country 2 songs in the frontend folder that are
-confirmed to work. You can use these to quickly test that your setup is working.
+I've included one Donkey Kong Country 2 song in root of the project you can try
+for testing.
 To upload the song with Python you need to know your serial port to which
 Arduino is connected to. In Linux it will be something similar like
 `/dev/ttyACM0` and on Windows `COM4`. To list available serial ports run
-following in the frontend folder:
+following in the `frontend-python` folder:
+
 ```
 python main.py -l
 ```
-Pick the port and to upload the song run:
+
+Copy the serial port and upload the song with:
+
 ```
-python main.py <serial-port> dkc2-stickerbrush-symphony.spc
+python main.py <serial-port> ../dkc2-stickerbrush-symphony.spc
 ```
 
-If working correctly Python should print following and song will start
-playing.
+If everything is working correctly Python should print following and song will
+start playing.
 ```
 opened port /dev/ttyACM0
 write CPU registers successful
@@ -142,7 +137,7 @@ write first page RAM successful
 write second page RAM successful
 100%
 write rest of the RAM successful
-SPC execution started successfully, uploading took 17.71s
+SPC execution started successfully, uploading took 9.22s
 ```
 
 Enjoy some awesome SNES music!
@@ -175,9 +170,3 @@ beef around the bones:
 * APU hardware: http://www.snesmusic.org/files/spc700.html
 * Anomie's in depth SPC700 documentation: http://www.romhacking.net/documents/197/
 * SNES schematics: https://wiki.superfamicom.org/schematics-ports-and-pinouts
-
-## Things to Do
-
-* Can play some songs but not all because of the fixed boot code location.
-* Comment code with Doxygen when cleaned up.
-* Add support to newer SPC formats.

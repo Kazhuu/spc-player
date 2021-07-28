@@ -78,7 +78,6 @@ export default class SpcClient {
       return Promise.reject("Rest of the SPC ram requires 64960 bytes");
     }
     let packetCount = restOfTheRam.length / RAM_PACKET_SIZE;
-    console.log("packet count: " + packetCount);
     await this.serial.write(this.encode("2"));
     for (let packetIndex = 0; packetIndex < packetCount; ++packetIndex) {
       let byteIndexStart = packetIndex * RAM_PACKET_SIZE;
@@ -113,8 +112,6 @@ export default class SpcClient {
     }
     return new Uint8Array(result.data!.buffer);
   }
-
-  public writePort(port: number, value: number) {}
 
   public async start() {
     await this.serial.write(this.encode("S"));
