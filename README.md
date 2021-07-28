@@ -1,6 +1,6 @@
 # SPC Player
 
-Play original SNES music files with original hardware from your browser.
+SNES SPC music file player in your browser with original hardware and Arduino.
 
 TODO: Update picture.
 ![arduino-spc](./images/arduino-apu-connected.jpg?raw=true "APU and Arduino connected")
@@ -19,6 +19,7 @@ TODO: Update picture.
   * [Uploading Song With Python](#uploading-song-with-python)
 * [Debugging APU Connections](#debugging-apu-connections)
 * [How it Works?](#how-it-works)
+* [Using Other Arduino Boads](#using-other-arduino-boads)
 * [Resources](#resources)
 
 <!-- vim-markdown-toc -->
@@ -26,7 +27,7 @@ TODO: Update picture.
 ## What is this?
 
 With this project you are able to play original SNES SPC audio files from your
-browser. All you need is Arduino Micro/UNO and original SNES Audio Processing Unit
+browser. All you need is Arduino Micro and original SNES Audio Processing Unit
 (APU). Playing songs also works from Python command-line tool instead of a
 browser.
 
@@ -73,9 +74,7 @@ Signal and symbol explanations:
 * **MUTE** is active low mute output from DSP, it's 0V when DSP is muted and 5V when
     not.
 
-Here is how you need to connect APU to Arduino. Project has been tested with
-same pinout with Arduino Micro and Arduino UNO. Should work with other Arduino
-types too.
+Here is how you need to connect APU to Arduino Micro:
 
 ![scema](./images/schema.png?raw=true "Schema")
 
@@ -93,11 +92,6 @@ Commenting out this line makes code use normal serial line instead of WebUSB
 serial. WebUSB serial is needed for communicating with the browser and both of
 them cannot be used at the same time.
 
-**Note**: Arduino UNO is not supported by WebUSB, for that you need Arduino
-Micro or other compatible device. For more information check
-[this](https://github.com/webusb/arduino). With UNO or similar Arduino you can
-only use Python frontend.
-
 ### Uploading Arduino Code
 
 Arduino based backend code uses [PlatformIO CLI](https://platformio.org/) tool
@@ -114,8 +108,6 @@ Micro, you can simply run:
 ```
 pio run
 ```
-
-If you are using Aruino UNO then run `pio run --environment uno`.
 
 This should install needed Arduino toolchain and libraries, compile the source
 code and upload it to Arduino board.
@@ -195,6 +187,19 @@ lines.  After uploading APU's RAM and it's registers, Python instructs Arduino
 to tell APU to start executing the song code. After this APU will keep playing
 the song until reset.
 
+## Using Other Arduino Boads
+
+You can also port this code to work on other Arduino boards. Keep in mind that
+WebUSB serial cannot be used with all boards. For WebUSB serial support check
+[this](https://github.com/webusb/arduino).
+
+For porting the code to different Arduino board. Take a look at file
+`backend/src/SpcHal.cpp`. Which is Hardware Abstraction Layer (HAL) for the
+platform. Here you can find the low level data communication functions.
+Functions are directly using pin IO registers for speed purposes. But the
+equivalent Arduino code is also there commented out which uses `digitalRead` and
+`digitalWrite` functions. Which is much easier to understand. Note that using
+`digitalRead` and `digitalWrite` functions the song upload will be a lot slower!
 
 ## Resources
 
