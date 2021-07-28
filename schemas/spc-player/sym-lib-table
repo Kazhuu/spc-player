@@ -1,3 +1,4 @@
 (sym_lib_table
   (lib (name snes-apu-connector)(type Legacy)(uri ${KIPRJMOD}/snes-apu-connector.lib)(options "")(descr ""))
+  (lib (name spc-player-rescue)(type Legacy)(uri ${KIPRJMOD}/spc-player-rescue.lib)(options "")(descr ""))
 )

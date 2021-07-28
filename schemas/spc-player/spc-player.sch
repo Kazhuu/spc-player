@@ -163,11 +163,11 @@ Wire Wire Line
 Wire Wire Line
 	3050 2600 3050 3050
 $Comp
-L MCU_Module:Arduino_UNO_R2 A1
+L spc-player-rescue:Arduino_UNO_R2-MCU_Module A1
 U 1 1 5E6EA817
 P 2250 2300
 F 0 "A1" H 2250 3481 50  0000 C CNN
-F 1 "Arduino_UNO_R2" H 2250 3390 50  0000 C CNN
+F 1 "Arduino_Micro_R2" H 2250 3390 50  0000 C CNN
 F 2 "Module:Arduino_UNO_R2" H 2250 2300 50  0001 C CIN
 F 3 "https://www.arduino.cc/en/Main/arduinoBoardUno" H 2250 2300 50  0001 C CNN
 	1    2250 2300
@@ -188,7 +188,7 @@ Wire Wire Line
 Wire Wire Line
 	5550 1850 5550 3500
 $Comp
-L Connector:AudioJack2_Ground J2
+L spc-player-rescue:AudioJack2_Ground-Connector J2
 U 1 1 5E716921
 P 5550 1650
 F 0 "J2" H 5370 1668 50  0000 R CNN

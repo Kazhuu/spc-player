@@ -1,47 +1,11 @@
 EESchema-LIBRARY Version 2.4
 #encoding utf-8
 #
-# snes-apu-connector_SNES_APU_CONN
+# Arduino_UNO_R2-MCU_Module
 #
-DEF snes-apu-connector_SNES_APU_CONN J 0 20 Y Y 1 F N
-F0 "J" -200 -700 50 H V C CNN
-F1 "snes-apu-connector_SNES_APU_CONN" -100 700 50 H V C CNN
-F2 "" 0 0 50 H I C CNN
-F3 "" 0 0 50 H I C CNN
-DRAW
-S -500 650 250 -650 0 1 0 f
-X ~PA7 1 -600 -550 100 R 50 50 1 1 I
-X D3 10 350 -150 100 L 50 50 1 1 B
-X D4 11 -600 -50 100 R 50 50 1 1 B
-X D5 12 350 -50 100 L 50 50 1 1 B
-X D6 13 -600 50 100 R 50 50 1 1 B
-X D7 14 350 50 100 L 50 50 1 1 B
-X ~RESET 15 -600 150 100 R 50 50 1 1 I
-X NC 16 350 150 100 L 50 50 1 1 N
-X SMPCK 17 -600 250 100 R 50 50 1 1 O C
-X VCC 18 350 250 100 L 50 50 1 1 W
-X GND 19 -600 350 100 R 50 50 1 1 P
-X PA6 2 350 -550 100 L 50 50 1 1 I
-X ~MUTE 20 350 350 100 L 50 50 1 1 O
-X AUDIO-L 21 -600 450 100 R 50 50 1 1 O
-X AUDIO-R 22 350 450 100 L 50 50 1 1 O
-X GDN 23 -600 550 100 R 50 50 1 1 P
-X AUDIO-VCC 24 350 550 100 L 50 50 1 1 W
-X PA0 3 -600 -450 100 R 50 50 1 1 I
-X PA1 4 350 -450 100 L 50 50 1 1 I
-X ~WR 5 -600 -350 100 R 50 50 1 1 I
-X ~RD 6 350 -350 100 L 50 50 1 1 I
-X D0 7 -600 -250 100 R 50 50 1 1 B
-X D1 8 350 -250 100 L 50 50 1 1 B
-X D2 9 -600 -150 100 R 50 50 1 1 B
-ENDDRAW
-ENDDEF
-#
-# spc-player-rescue_Arduino_UNO_R2-MCU_Module
-#
-DEF spc-player-rescue_Arduino_UNO_R2-MCU_Module A 0 20 Y Y 1 F N
+DEF Arduino_UNO_R2-MCU_Module A 0 20 Y Y 1 F N
 F0 "A" -400 925 50 H V L BNN
-F1 "spc-player-rescue_Arduino_UNO_R2-MCU_Module" 200 -1050 50 H V L TNN
+F1 "Arduino_UNO_R2-MCU_Module" 200 -1050 50 H V L TNN
 F2 "Module:Arduino_UNO_R2" 0 0 50 H I C CIN
 F3 "" 0 0 50 H I C CNN
 $FPLIST
@@ -82,11 +46,11 @@ X A0 9 500 0 100 L 50 50 1 1 B
 ENDDRAW
 ENDDEF
 #
-# spc-player-rescue_AudioJack2_Ground-Connector
+# AudioJack2_Ground-Connector
 #
-DEF spc-player-rescue_AudioJack2_Ground-Connector J 0 20 Y Y 1 F N
+DEF AudioJack2_Ground-Connector J 0 20 Y Y 1 F N
 F0 "J" 0 350 50 H V C CNN
-F1 "spc-player-rescue_AudioJack2_Ground-Connector" 0 250 50 H V C CNN
+F1 "AudioJack2_Ground-Connector" 0 250 50 H V C CNN
 F2 "" 0 0 50 H I C CNN
 F3 "" 0 0 50 H I C CNN
 $FPLIST
