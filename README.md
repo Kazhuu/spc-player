@@ -1,7 +1,6 @@
 # SPC Player
 
-Play original SNES audio files with original hardware with Arduino and your
-browser.
+Play original SNES music files with original hardware from your browser.
 
 TODO: Update picture.
 ![arduino-spc](./images/arduino-apu-connected.jpg?raw=true "APU and Arduino connected")
@@ -10,50 +9,51 @@ TODO: Update picture.
 
 <!-- vim-markdown-toc GFM -->
 
-* [About](#about)
+* [What is this?](#what-is-this)
 * [Structure of the Project](#structure-of-the-project)
 * [How to Use](#how-to-use)
   * [Connecting APU to Arduino](#connecting-apu-to-arduino)
+  * [Browser or Python Frontend?](#browser-or-python-frontend)
   * [Uploading Arduino Code](#uploading-arduino-code)
+  * [Browser SPC Player](#browser-spc-player)
   * [Uploading Song With Python](#uploading-song-with-python)
+* [Debugging APU Connections](#debugging-apu-connections)
+* [How it Works?](#how-it-works)
 * [Resources](#resources)
 
 <!-- vim-markdown-toc -->
 
-## About
+## What is this?
 
-TODO:
-Arduino based SNES SPC file music player with the original Audio Processing Unit
-(APU).
+With this project you are able to play original SNES SPC audio files from your
+browser. All you need is Arduino Micro/UNO and original SNES Audio Processing Unit
+(APU). Playing songs also works from Python command-line tool instead of a
+browser.
 
-This project is heavily based on this project
-https://www.caitsith2.com/snes/apu.htm. Which can also be found from github:
-https://github.com/emukidid/SNES_APU_SD.
+You also need to download your favorite SNES SPC music tracks. These can be
+downloaded from [Zophar's](https://www.zophar.net/music) website. Search for a
+game and download original music files. Files will end with `.spc` ending.
 
-[Zophar's](https://www.zophar.net/music) website.
-
-Project is develop on Linux machine and not tested on Windows. If someone finds
-something to fix please create an issue about it. Any kind of contribution is
-welcome.
+Project is develop on Linux machine and not tested on other platforms. Although
+it should work because of multiplatform tools used. If you stumble upon bugs,
+please file an issue here in GitHub.
 
 ## Structure of the Project
 
-Project consist of frontend Python code and backend C++ code for Arduino.
-Source codes are located under `frontend` and `backend` respectively. `images`
-folder contains images where SVG files are drawn with InkScape. `schemas` folder
-contains KiCad schema for the project.
+Project consist of two music track uploading frontend tools (browser and Python)
+and Arduino code for communicating with APU and with your computer. Browser
+based frontend code lives under `frontend-web` folder and Python code under
+`frontend-python` folder. Arduino code lives under `backend` folder.
 
-Python code is responsible of reading SPC file and uploading it's data to
-Arduino over UART serial line. Arduino code is responsible of reading the data
-from the serial line and transferring it to APU over it's parallel data lines.
-After uploading APU's RAM and it's registers, Python instructs Arduino to tell
-APU to start executing the song code. After this APU will keep playing the song.
+Project also contains InkScape SVG image files under `images` folder and KiCad
+schemas under `schemas` folder.
 
 ## How to Use
 
 ### Connecting APU to Arduino
 
-Here is APU pinout looking from the top side:
+First you need to connect APU to Arduino. Here is APU pinout looking from the
+top side of the unit:
 
 ![api-pinout](./images/apu-pinout.png?raw=true "APU Pinout")
 
@@ -68,13 +68,35 @@ Signal and symbol explanations:
 * From **D0** to **D7** are bidirectional data lines for input and output a single byte.
 * **RD** is active low read, APU will write data to lines D0 to D7 when pulled low.
 * **WR** is active low write, APU will read data from lines D0 to D7 when pulled low.
+* **RESET** is active low reset line. When held low SPC is in reset mode.
 * **SMPCK** is a clock output from DSP with average clock rate of 2.23 MHz.
 * **MUTE** is active low mute output from DSP, it's 0V when DSP is muted and 5V when
     not.
 
-Connect Arduino to APU according following diagram:
+Here is how you need to connect APU to Arduino. Project has been tested with
+same pinout with Arduino Micro and Arduino UNO. Should work with other Arduino
+types too.
 
 ![scema](./images/schema.png?raw=true "Schema")
+
+### Browser or Python Frontend?
+
+If you are using Python frontend, then you need to comment out following line in
+`backend/include/Serial.hpp`. If you are using browser frontend, you can ignore
+this.
+
+```
+#define USE_USB_SERIAL
+```
+
+Commenting out this line makes code use normal serial line instead of WebUSB
+serial. WebUSB serial is needed for communicating with the browser and both of
+them cannot be used at the same time.
+
+**Note**: Arduino UNO is not supported by WebUSB, for that you need Arduino
+Micro or other compatible device. For more information check
+[this](https://github.com/webusb/arduino). With UNO or similar Arduino you can
+only use Python frontend.
 
 ### Uploading Arduino Code
 
@@ -85,43 +107,48 @@ project using it. First download and install it from aforementioned website.
 Installing either IDE or CLI is fine. Generally I prefer CLI over IDE, so the
 following instructions are written with CLI.
 
-After installing PlatformIO go to backend folder and simply run:
+
+After installing PlatformIO go to `backend` folder. If you are using Arduino
+Micro, you can simply run:
+
 ```
 pio run
 ```
-This should install needed Arduino toolchain, compile the source code and upload
-it to the Arduino board.
 
-Before moving to use the Python code you can test that everything is connected
-and working correctly by running following command in the backend folder:
-```
-pio run --target monitor
-```
-This will open serial monitor. Press `R` to send R character. Arduino should
-respond with `1` if it's able to reset the APU successfully and `0` when it
-fails. In that case check your connections and try again.
+If you are using Aruino UNO then run `pio run --environment uno`.
+
+This should install needed Arduino toolchain and libraries, compile the source
+code and upload it to Arduino board.
+
+### Browser SPC Player
+
+TODO
 
 ### Uploading Song With Python
 
+Python frontend lives under `frontend-python` folder. Go to that folder and run
+following commands inside it.
+
 Project uses version 3.x of Python and uses pySerial library to talk to Arduino
 over USB serial line. First install pySerial with pip by running following
-command. Remember to use pip3 if you are using Debian based system like Ubuntu.
+command. Remember to use `pip3` and `python3` commands if you are using Debian
+based system like Ubuntu.
+
 ```
 pip install pyserial
 ```
 
-I've included one Donkey Kong Country 2 song in root of the project you can try
-for testing.
-To upload the song with Python you need to know your serial port to which
-Arduino is connected to. In Linux it will be something similar like
-`/dev/ttyACM0` and on Windows `COM4`. To list available serial ports run
-following in the `frontend-python` folder:
+I've included one Donkey Kong Country 2 song in root of the project that you can
+use for testing.  To upload the song with Python you need to know your serial
+port to which Arduino is connected to. In Linux it will be something similar
+like `/dev/ttyACM0` and on Windows `COM4`. To list available serial ports run:
 
 ```
 python main.py -l
 ```
 
-Copy the serial port and upload the song with:
+Copy the serial port and replace the following command `<serial-port>` with it.
+Now upload the song with:
 
 ```
 python main.py <serial-port> ../dkc2-stickerbrush-symphony.spc
@@ -129,6 +156,7 @@ python main.py <serial-port> ../dkc2-stickerbrush-symphony.spc
 
 If everything is working correctly Python should print following and song will
 start playing.
+
 ```
 opened port /dev/ttyACM0
 write CPU registers successful
@@ -140,7 +168,33 @@ write rest of the RAM successful
 SPC execution started successfully, uploading took 9.22s
 ```
 
-Enjoy some awesome SNES music!
+Enjoy some awesome SNES music! If you have some problems. Make sure APU is
+connected to Arduino correctly. For this check [Debugging APU
+Connections](#debugging-apu-connections) below.
+
+## Debugging APU Connections
+
+You can test that APU is connected to Arduino correctly. You need to use normal
+serial line, not WebUSB serial. After uploading the code go to backend folder
+and run:
+
+```
+pio run --target monitor
+```
+
+This will open serial monitor. Press `R` to send R character. Arduino should
+respond with `1` if it's able to reset the APU successfully and `0` when it
+fails. In that case check your connections and try again.
+
+## How it Works?
+
+Frontend code like Python is responsible of reading SPC file and uploading it's
+data to Arduino over serial line. Arduino code is responsible of reading the
+data from the serial line and transferring it to APU over it's parallel data
+lines.  After uploading APU's RAM and it's registers, Python instructs Arduino
+to tell APU to start executing the song code. After this APU will keep playing
+the song until reset.
+
 
 ## Resources
 
@@ -170,3 +224,7 @@ beef around the bones:
 * APU hardware: http://www.snesmusic.org/files/spc700.html
 * Anomie's in depth SPC700 documentation: http://www.romhacking.net/documents/197/
 * SNES schematics: https://wiki.superfamicom.org/schematics-ports-and-pinouts
+
+Also when I studied for this project I used following project source code for
+studying purposes https://www.caitsith2.com/snes/apu.htm. Which can also be
+found from GitHub: https://github.com/emukidid/SNES_APU_SD.
