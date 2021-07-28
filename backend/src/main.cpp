@@ -18,7 +18,10 @@
 #define SERIAL_WRITE_SUCCESS '1'
 #define SERIAL_WRITE_ERROR '0'
 
-#define RAM_PACKET_SIZE 2030
+// Maximum transfer packet one time. Must be bigger than 256 and must be even
+// divisor of 64960. Which correspond to ram size in bytes which is transferred
+// last.
+#define RAM_PACKET_MAX_SIZE 1015
 
 SpcHal spcHal;
 IplRomClient iplRomClient(spcHal);
@@ -49,8 +52,7 @@ void handleSerialCommand() {
         uint8_t port;
         uint16_t programCounter;
         uint8_t aRegister, xRegister, yRegister, stackPointer, cpuFlags;
-        uint8_t page[256];
-        uint8_t ramPacket[RAM_PACKET_SIZE];
+        uint8_t packet[RAM_PACKET_MAX_SIZE];
 
         switch (result) {
             case 'R': // Reset SPC.
@@ -95,14 +97,14 @@ void handleSerialCommand() {
             // Write all 128 DSP register. One byte per register.
             case 'D':
                 for (uint32_t i = 0; i < 128; ++i) {
-                    page[i] = Uart::readByte(serial, &uartReadResult);
+                    packet[i] = Uart::readByte(serial, &uartReadResult);
                     if (!uartReadResult) {
                         serial.write(SERIAL_WRITE_ERROR);
                         break;
                     }
                 }
                 if (uartReadResult) {
-                    bool dspResult = spcPlayer.writeDspRegisters(page);
+                    bool dspResult = spcPlayer.writeDspRegisters(packet);
                     if (dspResult) {
                         serial.write(SERIAL_WRITE_SUCCESS);
                     } else {
@@ -114,14 +116,14 @@ void handleSerialCommand() {
             // Write page 0 of SPC ram, 256 bytes.
             case '0':
                 for (uint32_t i = 0; i < 256; ++i) {
-                    page[i] = Uart::readByte(serial, &uartReadResult);
+                    packet[i] = Uart::readByte(serial, &uartReadResult);
                     if (!uartReadResult) {
                         serial.write(SERIAL_WRITE_ERROR);
                         break;
                     }
                 }
                 if (uartReadResult) {
-                    bool firstPageResult = spcPlayer.writeFirstPageRam(page);
+                    bool firstPageResult = spcPlayer.writeFirstPageRam(packet);
                     if (firstPageResult) {
                         serial.write(SERIAL_WRITE_SUCCESS);
                     } else {
@@ -133,14 +135,14 @@ void handleSerialCommand() {
             // Write page 1 of SPC ram, 256 bytes.
             case '1':
                 for (uint32_t i = 0; i < 256; ++i) {
-                    page[i] = Uart::readByte(serial, &uartReadResult);
+                    packet[i] = Uart::readByte(serial, &uartReadResult);
                     if (!uartReadResult) {
                         serial.write(SERIAL_WRITE_ERROR);
                         break;
                     }
                 }
                 if (uartReadResult) {
-                    bool secondPageResult = spcPlayer.writeSecondPageRam(page);
+                    bool secondPageResult = spcPlayer.writeSecondPageRam(packet);
                     if  (secondPageResult) {
                         serial.write(SERIAL_WRITE_SUCCESS);
                     } else {
@@ -149,17 +151,16 @@ void handleSerialCommand() {
                 }
                 break;
 
-            // TODO: Fix comment when done.
             // Write rest of the ram bytes after page 1. Rest of the ram is
-            // 64960 bytes long from addresses 0xFFC0 - 0x200. Transfer this
-            // amount of bytes in 280 packets and each 232 (RAM_PACKET_SIZE)
-            // bytes in length. In other words (0xFFC0 - 0x200) / 232 = 280.
-            // Between each packet transfer success or error result.
+            // 64960 bytes long from address 0x0200 to 0xFFC0. Transfer this
+            // amount of bytes in 64960 / RAM_PACKET_MAX_SIZE packets and each
+            // RAM_PACKET_MAX_SIZE bytes in length. Between each packet
+            // transfer success or error result.
             case '2':
-                for (uint32_t i = 0; i < (0xFFC0 - 0x200) / RAM_PACKET_SIZE; ++i) {
+                for (uint32_t i = 0; i < (0xFFC0 - 0x200) / RAM_PACKET_MAX_SIZE; ++i) {
                     uartReadResult = false;
-                    for (uint32_t j = 0; j < RAM_PACKET_SIZE; ++j) {
-                        ramPacket[j] = Uart::readByte(serial, &uartReadResult);
+                    for (uint32_t j = 0; j < RAM_PACKET_MAX_SIZE; ++j) {
+                        packet[j] = Uart::readByte(serial, &uartReadResult);
                         if (!uartReadResult) {
                             break;
                         }
@@ -169,8 +170,7 @@ void handleSerialCommand() {
                         serial.write(SERIAL_WRITE_ERROR);
                         break;
                     }
-                    packetResult = spcPlayer.writeRamPacket(ramPacket, RAM_PACKET_SIZE);
-                    //packetResult = true;
+                    packetResult = spcPlayer.writeRamPacket(packet, RAM_PACKET_MAX_SIZE);
                     if (!packetResult) {
                         spcPlayer.resetRamWrite();
                         serial.write(SERIAL_WRITE_ERROR);

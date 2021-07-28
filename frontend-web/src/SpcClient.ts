@@ -1,6 +1,6 @@
 import Serial from "Serial";
 
-const RAM_PACKET_SIZE = 2030;
+const RAM_PACKET_SIZE = 1015;
 
 export default class SpcClient {
   private serial: Serial;
@@ -79,7 +79,6 @@ export default class SpcClient {
     }
     let packetCount = restOfTheRam.length / RAM_PACKET_SIZE;
     console.log("packet count: " + packetCount);
-
     await this.serial.write(this.encode("2"));
     for (let packetIndex = 0; packetIndex < packetCount; ++packetIndex) {
       let byteIndexStart = packetIndex * RAM_PACKET_SIZE;
