@@ -13,7 +13,6 @@ TODO: Update picture.
 * [Structure of the Project](#structure-of-the-project)
 * [How to Use](#how-to-use)
   * [Connecting APU to Arduino](#connecting-apu-to-arduino)
-  * [Browser or Python Frontend?](#browser-or-python-frontend)
   * [Uploading Arduino Code](#uploading-arduino-code)
   * [Browser SPC Player](#browser-spc-player)
   * [Uploading Song With Python](#uploading-song-with-python)
@@ -27,13 +26,15 @@ TODO: Update picture.
 ## What is this?
 
 With this project you are able to play original SNES SPC audio files from your
-browser. All you need is Arduino Micro and original SNES Audio Processing Unit
-(APU). Playing songs also works from Python command-line tool instead of a
-browser.
+browser with original hardware. All you need is Arduino Micro and original SNES
+Audio Processing Unit (APU). Playing songs also works from Python command-line
+tool instead of a browser.
 
 You also need to download your favorite SNES SPC music tracks. These can be
 downloaded from [Zophar's](https://www.zophar.net/music) website. Search for a
-game and download original music files. Files will end with `.spc` ending.
+game and download original music files. Files will end with `.spc` ending.  I've
+included one Donkey Kong Country 2 song in root of the project that you can use
+for quick testing.
 
 Project is develop on Linux machine and not tested on other platforms. Although
 it should work because of multiplatform tools used. If you stumble upon bugs,
@@ -74,23 +75,9 @@ Signal and symbol explanations:
 * **MUTE** is active low mute output from DSP, it's 0V when DSP is muted and 5V when
     not.
 
-Here is how you need to connect APU to Arduino Micro:
+Here is how you need to connect APU to Arduino:
 
 ![scema](./images/schema.png?raw=true "Schema")
-
-### Browser or Python Frontend?
-
-If you are using Python frontend, then you need to comment out following line in
-`backend/include/Serial.hpp`. If you are using browser frontend, you can ignore
-this.
-
-```
-#define USE_USB_SERIAL
-```
-
-Commenting out this line makes code use normal serial line instead of WebUSB
-serial. WebUSB serial is needed for communicating with the browser and both of
-them cannot be used at the same time.
 
 ### Uploading Arduino Code
 
@@ -102,15 +89,25 @@ Installing either IDE or CLI is fine. Generally I prefer CLI over IDE, so the
 following instructions are written with CLI.
 
 
-After installing PlatformIO go to `backend` folder. If you are using Arduino
-Micro, you can simply run:
+After installing PlatformIO go to `backend` folder. If you are using browser
+frontend, you can simply run:
 
 ```
 pio run
 ```
 
-This should install needed Arduino toolchain and libraries, compile the source
-code and upload it to Arduino board.
+This will download needed tool and libraries. Compile the code and upload it to
+the board. Also you should see popup window from Chrome that supported USB
+device is connected.
+
+By default code uses WebUSB serial to communicate with the browser. Both WebUSB
+and normal serial cannot be used at the same time. If you are using Python
+frontend or normal serial, then you need to use following command instead and
+skip to the section [Uploading Song With Python](#uploading-song-with-python).
+
+```
+pio run --environment serial
+```
 
 ### Browser SPC Player
 
@@ -130,10 +127,9 @@ based system like Ubuntu.
 pip install pyserial
 ```
 
-I've included one Donkey Kong Country 2 song in root of the project that you can
-use for testing.  To upload the song with Python you need to know your serial
-port to which Arduino is connected to. In Linux it will be something similar
-like `/dev/ttyACM0` and on Windows `COM4`. To list available serial ports run:
+To upload the song with Python you need to know your serial port to which
+Arduino is connected to. In Linux it will be something similar like
+`/dev/ttyACM0` and on Windows `COM4`. To list available serial ports run:
 
 ```
 python main.py -l
@@ -186,6 +182,11 @@ data from the serial line and transferring it to APU over it's parallel data
 lines.  After uploading APU's RAM and it's registers, Python instructs Arduino
 to tell APU to start executing the song code. After this APU will keep playing
 the song until reset.
+
+PlatformIO environments are used to determine between WebUSB and normal
+serial. You can check `backend/platformio.ini` file how it's done. For example
+environment `webusb` defines `USE_WEBUSB_SERIAL`. Which in turn is used in code to
+determine which serial to use if it's defined.
 
 ## Using Other Arduino Boads
 

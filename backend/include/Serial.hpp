@@ -1,7 +1,4 @@
-// Comment this out if USB serial is not used.
-#define USE_USB_SERIAL
-
-#ifdef USE_USB_SERIAL
+#ifdef USE_WEBUSB_SERIAL
     #include <WebUSB.h>
     #define Serial_t WebUSB
 #else

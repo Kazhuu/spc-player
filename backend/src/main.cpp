@@ -5,7 +5,7 @@
 #include "Uart.hpp"
 #include "Serial.hpp"
 
-#ifdef USE_USB_SERIAL
+#ifdef USE_WEBUSB_SERIAL
     #include <WebUSB.h>
     Serial_t webUsbSerial(0 /* http:// */, "localhost:8080");
     #define serial webUsbSerial
