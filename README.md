@@ -2,8 +2,7 @@
 
 SNES SPC music file player in your browser with original hardware and Arduino.
 
-TODO: Update picture.
-![arduino-spc](./images/arduino-apu-connected.jpg?raw=true "APU and Arduino connected")
+![arduino-spc](./images/readme-image.png?raw=true "APU and Arduino connected")
 
 ## Table of Contents
 
@@ -20,6 +19,7 @@ TODO: Update picture.
 * [How it Works?](#how-it-works)
 * [Using Other Arduino Boads](#using-other-arduino-boads)
 * [Resources](#resources)
+* [Future Work](#future-work)
 
 <!-- vim-markdown-toc -->
 
@@ -111,12 +111,52 @@ pio run --environment serial
 
 ### Browser SPC Player
 
-TODO
+Browser based code uses WebUSB for communicating with Arduino. So check your
+browser compatibility for it
+[here](https://developer.mozilla.org/en-US/docs/Web/API/USB#browser_compatibility).
+For example Chrome and supports it but Firefox does not at time of writing.
+
+Browser player can play multiple songs more like a real player compared to the
+Python frontend which only can play one song at the time. Browser frontend lives
+under `frontend-web` folder. Go to that folder and run following commands under
+it.
+
+Application is developed with React and packages are managed with Yarn. So
+install yarn first for your system from
+[here](https://yarnpkg.com/getting-started/install). After installing install
+all required packages with:
+
+```
+yarn install
+```
+
+After installing run the application with
+
+```
+yarn start
+```
+
+and go to `localhost:3000` with your browser.
+
+With the player you first need to give permission to your use your USB devices
+and select the correct one to connect to. After connecting successfully you are
+presented with the player. Player contains some buttons to debug your setup and
+then button to upload SPC files. Multiple files can be uploaded at the same
+time. One DKC2 track is include in the project root for testing purposes. When
+you've uploaded some songs, then just click on any table line to start uploading
+the song and it should start playing. After the song ends the next song will be
+played automatically. UI could be better but that is the task for the future...
+
+Enjoy some awesome SNES music! If you have some problems. Make sure APU is
+connected to Arduino correctly. For this check [Debugging APU
+Connections](#debugging-apu-connections).
 
 ### Uploading Song With Python
 
-Python frontend lives under `frontend-python` folder. Go to that folder and run
-following commands inside it.
+Python frontend can only upload one song at the time. If you want more player
+like experience with automatically playing the next song. Have a look at browser
+based frontend instead. Python frontend lives under `frontend-python` folder.
+Go to that folder and run following commands inside it.
 
 Project uses version 3.x of Python and uses pySerial library to talk to Arduino
 over USB serial line. First install pySerial with pip by running following
@@ -234,3 +274,12 @@ beef around the bones:
 Also when I studied for this project I used following project source code for
 studying purposes https://www.caitsith2.com/snes/apu.htm. Which can also be
 found from GitHub: https://github.com/emukidid/SNES_APU_SD.
+
+## Future Work
+
+Can play all songs that I've tested but most likely not all SPC files work. At
+the moment only supports SPC file format v0.30. In future more formats could be
+supported.
+
+If you stumble upon anything please file an issue about it. PRs are also
+welcome, thanks!
