@@ -1,32 +1,46 @@
 import { useRef, SyntheticEvent } from "react";
+import Button from "@material-ui/core/Button";
 
-function FileHandler({
+export default function FileHandler({
   fileCallback,
 }: {
-  fileCallback: { (arg0: File): void };
+  fileCallback: { (arg0: File[]): void };
 }) {
   const fileInput = useRef<HTMLInputElement>(null);
 
-  const handleSubmit = (event: SyntheticEvent) => {
+  const handleFileInput = (event: SyntheticEvent) => {
     event.preventDefault();
     if (
       fileInput !== null &&
       fileInput.current !== null &&
       fileInput.current.files !== null
     ) {
-      let file = fileInput.current.files[0];
-      fileCallback(file);
+      let files = [];
+      for (let i = 0; i < fileInput.current.files.length; i++) {
+        let file = fileInput.current.files.item(i);
+        if (file) {
+          files.push(file);
+        }
+      }
+      fileCallback(files);
     }
   };
 
   return (
-    <form onSubmit={handleSubmit}>
-      <label>
-        <input type="file" ref={fileInput} />
-      </label>
-      <button type="submit">Submit</button>
-    </form>
+    <Button
+      variant="contained"
+      color="primary"
+      component="label"
+      disableElevation
+    >
+      Choose Files
+      <input
+        type="file"
+        onChange={handleFileInput}
+        ref={fileInput}
+        hidden
+        multiple
+      />
+    </Button>
   );
 }
-
-export default FileHandler;

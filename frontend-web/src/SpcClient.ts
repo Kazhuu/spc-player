@@ -73,7 +73,10 @@ export default class SpcClient {
     }
   }
 
-  public async writeRestOfTheRam(restOfTheRam: Uint8Array) {
+  public async writeRestOfTheRam(
+    restOfTheRam: Uint8Array,
+    updateProgress: { (progress: number): void }
+  ) {
     if (restOfTheRam.length !== 64960) {
       return Promise.reject("Rest of the SPC ram requires 64960 bytes");
     }
@@ -84,8 +87,12 @@ export default class SpcClient {
       let byteIndexEnd = byteIndexStart + RAM_PACKET_SIZE;
       await this.serial.write(restOfTheRam.slice(byteIndexStart, byteIndexEnd));
       let readResult = await this.serial.read(1);
+      let progress = ((packetIndex + 1) / packetCount) * 100;
+      updateProgress(progress);
       if (readResult.data && this.decode(readResult.data.buffer) !== "1") {
-        return Promise.reject("Ram packet " + packetIndex + " transfer failed");
+        return Promise.reject(
+          "SPC Ram packet " + packetIndex + " transfer failed"
+        );
       }
     }
   }
@@ -94,12 +101,12 @@ export default class SpcClient {
     await this.serial.write(this.encode("B"));
     let result = await this.serial.read(1);
     if (result.status !== "ok") {
-      return Promise.reject("Reading bootcode size failed");
+      return Promise.reject("Reading bootcode size timed out");
     }
     let bootCodeSize = this.byteToNumber(result.data!.buffer);
     let bootcode = await this.serial.read(bootCodeSize);
     if (result.status !== "ok") {
-      return Promise.reject("Reading bootcode failed");
+      return Promise.reject("Reading bootcode timed out");
     }
     return new Uint8Array(bootcode.data!.buffer);
   }
@@ -108,7 +115,7 @@ export default class SpcClient {
     await this.serial.write(this.encode("Q"));
     let result = await this.serial.read(4);
     if (result.status !== "ok") {
-      return Promise.reject("Reading ports failed");
+      return Promise.reject("Reading SPC ports timed out");
     }
     return new Uint8Array(result.data!.buffer);
   }
@@ -117,7 +124,7 @@ export default class SpcClient {
     await this.serial.write(this.encode("S"));
     let result = await this.serial.read(1);
     if (result.data && this.decode(result.data.buffer) !== "1") {
-      return Promise.reject("Staring SPC execution failed");
+      return Promise.reject("Starting SPC execution failed");
     }
   }
 
@@ -125,8 +132,10 @@ export default class SpcClient {
     await this.serial.write(this.encode("R"));
     let result = await this.serial.read(1);
     if (result.data && this.decode(result.data.buffer) !== "1") {
+      await this.serial.reset();
       return Promise.reject("SPC reset timed out");
     }
+    await this.serial.reset();
   }
 
   private encode(data: string) {

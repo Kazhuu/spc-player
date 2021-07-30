@@ -61,6 +61,22 @@ export default class SpcReader {
     }
   }
 
+  title(): string {
+    if (this.hasID666Metadata) {
+      return `${this.metadata!.game} - ${this.metadata!.title}`;
+    } else {
+      return `${this.name()}`;
+    }
+  }
+
+  songLengthInMs(): number {
+    if (this.hasID666Metadata) {
+      return this.metadata!.length * 1000;
+    } else {
+      return 60 * 1000;
+    }
+  }
+
   private parse(): void {
     if (!this.verify()) {
       throw new Error("Not a valid SPC file");

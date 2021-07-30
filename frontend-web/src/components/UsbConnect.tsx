@@ -1,6 +1,8 @@
 import { useState, useEffect } from "react";
+import Button from "@material-ui/core/Button";
 
 import Serial from "Serial";
+import "App.css";
 
 export default function UsbConnect(props: any) {
   const [deviceFound, setDeviceFound] = useState(false);
@@ -41,19 +43,20 @@ export default function UsbConnect(props: any) {
       } catch (error) {
         setStatusMessage(error.toString());
       }
-    } else {
-      props.disconnectCallback();
-      setStatusMessage("Device disconnected");
-      setDeviceFound(false);
     }
   }
 
   return (
     <div>
-      <button onClick={connect}>
-        {deviceFound ? "Disconnect" : "Connect"}
-      </button>
-      <p>Status: {statusMessage}</p>
+      <Button
+        onClick={connect}
+        variant="contained"
+        color="primary"
+        disableElevation
+      >
+        Connect
+      </Button>
+      <label className="App-label">Status: {statusMessage}</label>
     </div>
   );
 }

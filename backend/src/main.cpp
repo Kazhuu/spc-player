@@ -7,7 +7,7 @@
 
 #ifdef USE_WEBUSB_SERIAL
     #include <WebUSB.h>
-    Serial_t webUsbSerial(0 /* http:// */, "localhost:8080");
+    Serial_t webUsbSerial(1 /* https:// */, "www.github.com/Kazhuu/spc-player");
     #define serial webUsbSerial
 #else
     #define serial Serial
