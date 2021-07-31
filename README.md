@@ -1,6 +1,6 @@
 # SPC Player
 
-SNES SPC music file player in your browser with original hardware and Arduino.
+SNES music file player in your browser with original hardware and Arduino.
 
 ![arduino-spc](./images/readme-image.png?raw=true "APU and Arduino connected")
 
@@ -24,6 +24,8 @@ SNES SPC music file player in your browser with original hardware and Arduino.
 <!-- vim-markdown-toc -->
 
 ## What is this?
+
+Video in action [here](https://www.youtube.com/watch?v=2sleZUMQwSA).
 
 With this project you are able to play original SNES SPC audio files from your
 browser with original hardware. All you need is Arduino Micro and original SNES
