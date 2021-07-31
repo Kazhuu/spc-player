@@ -13,8 +13,8 @@ SNES music file player in your browser with original hardware and Arduino.
 * [How to Use](#how-to-use)
   * [Connecting APU to Arduino](#connecting-apu-to-arduino)
   * [Uploading Arduino Code](#uploading-arduino-code)
-  * [Browser SPC Player](#browser-spc-player)
-  * [Uploading Song With Python](#uploading-song-with-python)
+  * [Browser Frontend](#browser-frontend)
+  * [Python Frontend](#python-frontend)
 * [Debugging APU Connections](#debugging-apu-connections)
 * [How it Works?](#how-it-works)
 * [Using Other Arduino Boads](#using-other-arduino-boads)
@@ -106,13 +106,13 @@ device is connected.
 By default code uses WebUSB serial to communicate with the browser. Both WebUSB
 and normal serial cannot be used at the same time. If you are using Python
 frontend or normal serial, then you need to use following command instead and
-skip to the section [Uploading Song With Python](#uploading-song-with-python).
+skip to the section [Python Frontend](#python-frontend).
 
 ```
 pio run --environment serial
 ```
 
-### Browser SPC Player
+### Browser Frontend
 
 Browser based code uses WebUSB for communicating with Arduino. So check your
 browser compatibility for it
@@ -154,7 +154,7 @@ Enjoy some awesome SNES music! If you have some problems. Make sure APU is
 connected to Arduino correctly. For this check [Debugging APU
 Connections](#debugging-apu-connections).
 
-### Uploading Song With Python
+### Python Frontend
 
 Python frontend can only upload one song at the time. If you want more player
 like experience with automatically playing the next song. Have a look at browser
