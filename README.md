@@ -30,13 +30,14 @@ Video in action [here](https://www.youtube.com/watch?v=2sleZUMQwSA).
 With this project you are able to play original SNES SPC audio files from your
 browser with original hardware. All you need is Arduino Micro and original SNES
 Audio Processing Unit (APU). Playing songs also works from Python command-line
-tool instead of a browser.
+tool instead of a browser. If you are interested how this project works check
+sections [How it Works?](#how-it-works) and [Resources](#resources).
 
-You also need to download your favorite SNES SPC music tracks. These can be
-downloaded from [Zophar's](https://www.zophar.net/music) website. Search for a
-game and download original music files. Files will end with `.spc` ending.  I've
-included one Donkey Kong Country 2 song in root of the project that you can use
-for quick testing.
+For playing you also need to download your favorite SNES SPC music tracks. These
+can be downloaded from [Zophar's](https://www.zophar.net/music) website. Search
+for a game and download original music files. Files will end with `.spc` ending.
+I've included one Donkey Kong Country 2 song in root of the project that you can
+use for quick testing.
 
 Project is develop on Linux machine and not tested on other platforms. Although
 it should work because of multiplatform tools used. If you stumble upon bugs,
@@ -218,17 +219,37 @@ fails. In that case check your connections and try again.
 
 ## How it Works?
 
-Frontend code like Python is responsible of reading SPC file and uploading it's
-data to Arduino over serial line. Arduino code is responsible of reading the
-data from the serial line and transferring it to APU over it's parallel data
-lines.  After uploading APU's RAM and it's registers, Python instructs Arduino
-to tell APU to start executing the song code. After this APU will keep playing
-the song until reset.
+APU itself is a standalone CPU with it's own RAM and DSP for producing sound.
+Usually referred as SCP700 CPU
+([wiki](https://en.wikipedia.org/wiki/Super_Nintendo_Entertainment_System#Audio)).
+Then SPC music file is a snapshot of the state of that system just before the
+song starts to play. The snapshot includes details like values of all CPU and
+DSP register and whole RAM content.
 
-PlatformIO environments are used to determine between WebUSB and normal
-serial. You can check `backend/platformio.ini` file how it's done. For example
-environment `webusb` defines `USE_WEBUSB_SERIAL`. Which in turn is used in code to
-determine which serial to use if it's defined.
+When SPC700 boots up it will run it's Initial Program Loader (IPL) code. This
+code is responsible for communicating over parallel lines with SNES main CPU and
+transferring bytes to SCP700 RAM. It's also responsible of starting execution of
+uploaded code. In other words meaning when song should start playing.
+
+In this project's case Arduino is talking with IPL program instead of SNES main
+CPU. Frontend program on PC (Python or browser) is reading SPC700 RAM bytes from
+SPC file, transferring them to Arduino over USB serial and Arduino then
+transferring them with IPL program to SPC700 CPU RAM over it's parallel lines.
+That's in a nutshell how the whole process works. After all RAM bytes and
+register values have been transferred. Arduino will inject small custom bootcode
+to SPC700 RAM and tell IPL to start execution from there. The bootcode is
+responsible for restoring last register and timer values and then jump to actual
+song program execution. Bootcode can be found from this file
+`backend/src/SpcPlayer.cpp`.  Bootcode is filled up with details when whole RAM
+transferring is in progress.  After the song starts playing the parallel line
+communication is dependant on the song and game. Only way to stop the song at
+this point is just to reset whole APU itself with the reset line.
+
+One interesting detail which change from game to game. When program is running
+and music is playing. Program is still reading for values from parallel lines.
+If something is written there from SNES CPU side, then some sound effects are
+played. For example in Super Mario World Mario's jumping sound is played while
+the song is playing.
 
 ## Using Other Arduino Boads
 
