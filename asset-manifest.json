@@ -1,0 +1,20 @@
+{
+  "files": {
+    "main.css": "/spc-player/static/css/main.c336a1b2.chunk.css",
+    "main.js": "/spc-player/static/js/main.61311e6a.chunk.js",
+    "main.js.map": "/spc-player/static/js/main.61311e6a.chunk.js.map",
+    "runtime-main.js": "/spc-player/static/js/runtime-main.6c039965.js",
+    "runtime-main.js.map": "/spc-player/static/js/runtime-main.6c039965.js.map",
+    "static/js/2.ab44c5d8.chunk.js": "/spc-player/static/js/2.ab44c5d8.chunk.js",
+    "static/js/2.ab44c5d8.chunk.js.map": "/spc-player/static/js/2.ab44c5d8.chunk.js.map",
+    "index.html": "/spc-player/index.html",
+    "static/css/main.c336a1b2.chunk.css.map": "/spc-player/static/css/main.c336a1b2.chunk.css.map",
+    "static/js/2.ab44c5d8.chunk.js.LICENSE.txt": "/spc-player/static/js/2.ab44c5d8.chunk.js.LICENSE.txt"
+  },
+  "entrypoints": [
+    "static/js/runtime-main.6c039965.js",
+    "static/js/2.ab44c5d8.chunk.js",
+    "static/css/main.c336a1b2.chunk.css",
+    "static/js/main.61311e6a.chunk.js"
+  ]
+}
