@@ -7,7 +7,7 @@
 
 #ifdef USE_WEBUSB_SERIAL
     #include <WebUSB.h>
-    Serial_t webUsbSerial(1 /* https:// */, "www.github.com/Kazhuu/spc-player");
+    Serial_t webUsbSerial(1 /* https:// */, "kazhuu.github.io/spc-player");
     #define serial webUsbSerial
 #else
     #define serial Serial

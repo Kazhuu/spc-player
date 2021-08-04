@@ -13,13 +13,14 @@ SNES music file player in your browser with original hardware and Arduino.
 * [How to Use](#how-to-use)
   * [Connecting APU to Arduino](#connecting-apu-to-arduino)
   * [Uploading Arduino Code](#uploading-arduino-code)
-  * [Browser Frontend](#browser-frontend)
   * [Python Frontend](#python-frontend)
+  * [Browser Frontend](#browser-frontend)
 * [Debugging APU Connections](#debugging-apu-connections)
 * [How it Works?](#how-it-works)
 * [Using Other Arduino Boads](#using-other-arduino-boads)
 * [Resources](#resources)
 * [Future Work](#future-work)
+* [Deploying GitHub Pages](#deploying-github-pages)
 
 <!-- vim-markdown-toc -->
 
@@ -29,8 +30,9 @@ Video in action [here](https://www.youtube.com/watch?v=2sleZUMQwSA).
 
 With this project you are able to play original SNES SPC audio files from your
 browser with original hardware. All you need is Arduino Micro and original SNES
-Audio Processing Unit (APU). Playing songs also works from Python command-line
-tool instead of a browser. If you are interested how this project works check
+Audio Processing Unit (APU). Deployed browser player can be found
+[here](https://www.mauri.codes/spc-player). Playing songs also works from
+Python command-line tool. If you are interested how this project works check
 sections [How it Works?](#how-it-works) and [Resources](#resources).
 
 For playing you also need to download your favorite SNES SPC music tracks. These
@@ -100,59 +102,18 @@ pio run
 ```
 
 This will download needed tool and libraries. Compile the code and upload it to
-the board. Also you should see popup window from Chrome that supported USB
-device is connected.
+the board. Also you should see popup window from Chrome pointing to deployed
+browser player. If not, then it can be found
+[here](https://kazhuu.github.io/spc-player).
 
 By default code uses WebUSB serial to communicate with the browser. Both WebUSB
 and normal serial cannot be used at the same time. If you are using Python
 frontend or normal serial, then you need to use following command instead and
-skip to the section [Python Frontend](#python-frontend).
+read the section [Python Frontend](#python-frontend).
 
 ```
 pio run --environment serial
 ```
-
-### Browser Frontend
-
-Browser based code uses WebUSB for communicating with Arduino. So check your
-browser compatibility for it
-[here](https://developer.mozilla.org/en-US/docs/Web/API/USB#browser_compatibility).
-For example Chrome and supports it but Firefox does not at time of writing.
-
-Browser player can play multiple songs more like a real player compared to the
-Python frontend which only can play one song at the time. Browser frontend lives
-under `frontend-web` folder. Go to that folder and run following commands under
-it.
-
-Application is developed with React and packages are managed with Yarn. So
-install yarn first for your system from
-[here](https://yarnpkg.com/getting-started/install). After installing install
-all required packages with:
-
-```
-yarn install
-```
-
-After installing run the application with
-
-```
-yarn start
-```
-
-and go to `localhost:3000` with your browser.
-
-With the player you first need to give permission to your use your USB devices
-and select the correct one to connect to. After connecting successfully you are
-presented with the player. Player contains some buttons to debug your setup and
-then button to upload SPC files. Multiple files can be uploaded at the same
-time. One DKC2 track is include in the project root for testing purposes. When
-you've uploaded some songs, then just click on any table line to start uploading
-the song and it should start playing. After the song ends the next song will be
-played automatically. UI could be better but that is the task for the future...
-
-Enjoy some awesome SNES music! If you have some problems. Make sure APU is
-connected to Arduino correctly. For this check [Debugging APU
-Connections](#debugging-apu-connections).
 
 ### Python Frontend
 
@@ -201,7 +162,49 @@ SPC execution started successfully, uploading took 9.22s
 
 Enjoy some awesome SNES music! If you have some problems. Make sure APU is
 connected to Arduino correctly. For this check [Debugging APU
-Connections](#debugging-apu-connections) below.
+Connections](#debugging-apu-connections).
+
+### Browser Frontend
+
+Browser based code uses WebUSB for communicating with Arduino. So check your
+browser compatibility for it
+[here](https://developer.mozilla.org/en-US/docs/Web/API/USB#browser_compatibility).
+For example Chrome and supports it but Firefox does not at time of writing.
+Deployed player can be found [here](https://kazhuu.github.io/spc-player).
+
+Browser player can play multiple songs more like a real player compared to the
+Python frontend which only can play one song at the time. Browser frontend lives
+under `frontend-web` folder. Go to that folder and run following commands under
+it.
+
+Application is developed with React and packages are managed with Yarn. So
+install yarn first for your system from
+[here](https://yarnpkg.com/getting-started/install). After installing install
+all required packages with:
+
+```
+yarn install
+```
+
+After installing run the application with
+
+```
+yarn start
+```
+
+and go to `localhost:3000` with your browser.
+
+With the player you first need to give permission to your use your USB devices
+and select the correct one to connect to. After connecting successfully you are
+presented with the player. Player contains some buttons to debug your setup and
+then button to upload SPC files. Multiple files can be uploaded at the same
+time. One DKC2 track is include in the project root for testing purposes. When
+you've uploaded some songs, then just click on any table line to start uploading
+the song and it should start playing. After the song ends the next song will be
+played automatically. UI could be better but that is the task for the future...
+
+Enjoy some awesome SNES music! If you have some problems. Make sure APU is
+connected to Arduino correctly. For this check section below.
 
 ## Debugging APU Connections
 
@@ -306,3 +309,12 @@ supported.
 
 If you stumble upon anything please file an issue about it. PRs are also
 welcome, thanks!
+
+## Deploying GitHub Pages
+
+Under `frontend-web` run:
+
+```
+yarn build
+yarn deploy
+```
