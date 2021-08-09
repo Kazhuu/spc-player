@@ -1,6 +1,6 @@
 # SPC Player
 
-SNES music file player in your browser with original hardware and Arduino.
+SNES music player in your browser with original hardware and Arduino.
 
 ![arduino-spc](./images/readme-image.png?raw=true "APU and Arduino connected")
 
@@ -44,6 +44,9 @@ use for quick testing.
 Project is develop on Linux machine and not tested on other platforms. Although
 it should work because of multiplatform tools used. If you stumble upon bugs,
 please file an issue here in GitHub.
+
+This project was also featured in
+[hackaday](https://hackaday.com/2021/08/08/a-snes-music-player-you-can-control-with-a-browser/).
 
 ## Structure of the Project
 
